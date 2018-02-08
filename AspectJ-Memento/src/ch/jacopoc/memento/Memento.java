@@ -1,20 +1,23 @@
 package ch.jacopoc.memento;
 
-public class Memento implements Comparable<Memento> {
+public class Memento {
 
-	private final Object state;
+	/**
+	 * 
+	 */
+	public final long created;
+	/**
+	 * 
+	 */
+	public final Object state;
 	
+	/**
+	 * 
+	 * @param state
+	 */
 	public Memento(Object state) {
+		this.created = System.currentTimeMillis();
 		this.state = state;
-	}
-	
-	public Object getSavedState() {
-		return state;
-	}
-
-	@Override
-	public int compareTo(Memento o) {
-		return state.toString().compareTo(o.toString());
 	}
 	
 	@Override
