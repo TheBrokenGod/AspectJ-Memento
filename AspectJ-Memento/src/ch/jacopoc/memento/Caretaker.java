@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
  */
 public class Caretaker {
 
-	private List<Memento> savedStates;
+	private List<AbstractMemento> savedStates;
 	private int currentState;
 	
 	/**
@@ -27,7 +27,7 @@ public class Caretaker {
 	 * 
 	 * @param initialState
 	 */
-	public Caretaker(Memento initialState) {
+	public Caretaker(AbstractMemento initialState) {
 		this();
 		saveState(initialState);
 	}
@@ -61,9 +61,9 @@ public class Caretaker {
 	 * 
 	 * @return
 	 */
-	public Memento previous() {
+	public AbstractMemento previous() {
 		if(hasPrevious()) {
-			// Rollback to the previous
+			// Rollback 
 			return savedStates.get(--currentState);
 		}
 		throw new NoSuchElementException();
@@ -82,9 +82,9 @@ public class Caretaker {
 	 * 
 	 * @return
 	 */
-	public Memento next() {
+	public AbstractMemento next() {
 		if(hasNext()) {
-			// Return to the next
+			// Restore
 			return savedStates.get(++currentState);
 		}
 		throw new NoSuchElementException();
@@ -94,8 +94,9 @@ public class Caretaker {
 	 * 
 	 * @return
 	 */
-	public Memento current() {
+	public AbstractMemento current() {
 		if(size() > 0) {
+			// Current cursor position
 			return savedStates.get(currentState);
 		}
 		throw new NoSuchElementException();
@@ -105,7 +106,7 @@ public class Caretaker {
 	 * 
 	 * @param memento
 	 */
-	public void saveState(Memento memento) {
+	public void saveState(AbstractMemento memento) {
 		// Drop the previous, diverging timeline
 		if(hasNext()) {
 			savedStates = savedStates.subList(0, currentState + 1);

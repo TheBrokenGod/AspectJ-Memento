@@ -3,10 +3,10 @@ package main;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentListener;
 
-import ch.jacopoc.memento.Memento;
+import ch.jacopoc.memento.AbstractMemento;
 import ch.jacopoc.memento.Originator;
 
-class TextArea extends JTextArea implements Originator {
+class TextArea extends JTextArea implements Originator<String> {
 
 	private static final long serialVersionUID = 1L;
 	private final DocumentListener listener;
@@ -24,8 +24,8 @@ class TextArea extends JTextArea implements Originator {
 	}
 	
 	@Override
-	public void setState(Object state) {
-		setText(state.toString());
+	public void setState(String state) {
+		setText(state);
 	}
 
 	@Override
@@ -34,9 +34,9 @@ class TextArea extends JTextArea implements Originator {
 	}
 
 	@Override
-	public void restore(Memento memento) {
+	public void restore(AbstractMemento memento) {
 		getDocument().removeDocumentListener(listener);
-		setText(memento.state.toString());
+		setText(((Memento)memento).state);
 		getDocument().addDocumentListener(listener);
 	}
 }

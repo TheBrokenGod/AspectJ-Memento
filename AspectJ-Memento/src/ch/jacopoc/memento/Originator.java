@@ -5,22 +5,22 @@ package ch.jacopoc.memento;
  * @author Jacopo
  *
  */
-public interface Originator {
+public interface Originator<T> {
 	/**
 	 * 
 	 * @param state
 	 */
-	public void setState(Object state);
+	public void setState(T state);
 	
 	/**
 	 * 
 	 * @return
 	 */
-	public Memento createMemento();
+	public AbstractMemento createMemento();
 	
 	/**
 	 * 
 	 * @param memento
 	 */
-	public void restore(Memento memento);
+	public void restore(AbstractMemento memento);
 }

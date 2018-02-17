@@ -69,8 +69,8 @@ public class SwingNotepad extends JFrame implements DocumentListener {
 	
 	private void saveMemento() {
 		caretaker.saveState(editor.createMemento());
-		System.out.println(caretaker);
 		displayTime();
+//		System.out.println(caretaker);
 	}
 	
 	public void undo() {
