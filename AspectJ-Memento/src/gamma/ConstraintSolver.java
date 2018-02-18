@@ -1,26 +1,24 @@
 package gamma;
 
-import ch.jacopoc.memento.AbstractMemento;
+import ch.jacopoc.memento.IMemento;
+import ch.jacopoc.memento.Originator;
 
-public class ConstraintSolver {
+class ConstraintSolver implements Originator<ConstraintSolver.InternalState> {
 
 	/**
 	 * Nesting class as a replacement of C++ friend statement
 	 */
-	static public class Memento extends AbstractMemento {
+	static class InternalState implements IMemento {
 		
 		private final long state;
 		
-		private Memento(long state) {
+		private InternalState(long state) {
 			this.state = state;
 		}
 	}
 	
 	static private final ConstraintSolver instance = new ConstraintSolver();
 	
-	/**
-	 * An index to identify the internal state
-	 */
 	private long internalStatePlaceholder;
 	
 	private ConstraintSolver() {
@@ -31,22 +29,27 @@ public class ConstraintSolver {
 		return instance;
 	}
 	
-	public void solve() {
+	void solve() {
 		System.out.println("Solving " + internalStatePlaceholder);
 	}
 	
-	public void addConstraint(Graphic startConnection, Graphic endConnection) {
+	void addConstraint(Graphic startConnection, Graphic endConnection) {
+		System.out.print("Connecting " + startConnection.getName() + " and " + endConnection.getName() + " => ");
 	}
 	
-	public void removeConstraint(Graphic startConnection, Graphic endConnection) {
+	void removeConstraint(Graphic startConnection, Graphic endConnection) {
+		System.out.print("Disconnecting " + startConnection.getName() + " and " + endConnection.getName() + " => ");
 	}
 	
-	public Memento createMemento() {
-		return new Memento(internalStatePlaceholder++);
+	@Override
+	public InternalState createMemento() {
+		System.out.print("Saving " + internalStatePlaceholder + " => ");
+		return new InternalState(internalStatePlaceholder++);
 	}
 	
-	void setMemento(Memento memento) {
+	@Override
+	public void restore(InternalState memento) {
 		internalStatePlaceholder = memento.state;
-		System.out.println("Restoring " + memento.state);
+		System.out.print("Restoring " + internalStatePlaceholder + " => ");
 	}
 }

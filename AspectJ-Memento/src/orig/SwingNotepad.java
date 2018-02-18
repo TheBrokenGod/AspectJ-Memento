@@ -1,4 +1,4 @@
-package main;
+package orig;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -25,8 +25,8 @@ public class SwingNotepad extends JFrame implements DocumentListener {
 	private final JButton undo;
 	private final JButton redo;
 	private final JLabel time;
-	private final TextArea editor;
-	private final Caretaker caretaker;
+	private final TextEditor editor;
+	private final Caretaker<EditorContent> caretaker;
 	
 	public SwingNotepad() {
 		// Init editor's Swing GUI
@@ -38,18 +38,18 @@ public class SwingNotepad extends JFrame implements DocumentListener {
 		toolbar.add(undo);
 		toolbar.add(redo);
 		toolbar.add(time);
-		editor = new TextArea(25, 60, this);
+		editor = new TextEditor(25, 60, this);
 		editor.setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER, BORDER));
 		add(toolbar, BorderLayout.NORTH);
 		add(new JScrollPane(editor), BorderLayout.CENTER);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle(TITLE);
 		pack();
+		setVisible(true);
 		// Init editor's memento logic
 		undo.addActionListener(e -> undo());
 		redo.addActionListener(e -> redo());
-		caretaker = new Caretaker();
-		saveMemento();
+		caretaker = new Caretaker<>(editor.createMemento());
 	}
 
 	@Override
@@ -69,8 +69,8 @@ public class SwingNotepad extends JFrame implements DocumentListener {
 	
 	private void saveMemento() {
 		caretaker.saveState(editor.createMemento());
+		System.out.println(caretaker);
 		displayTime();
-//		System.out.println(caretaker);
 	}
 	
 	public void undo() {
@@ -88,10 +88,6 @@ public class SwingNotepad extends JFrame implements DocumentListener {
 	}
 	
 	public void displayTime() {
-		time.setText(new Date(caretaker.current().created).toString());
-	}
-	
-	public static void main(String[] args) {
-		new SwingNotepad().setVisible(true);
+		time.setText(new Date(((EditorContent)caretaker.current()).created).toString());
 	}
 }

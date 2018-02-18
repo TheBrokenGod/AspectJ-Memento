@@ -1,12 +1,11 @@
-package main;
+package orig;
 
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentListener;
 
-import ch.jacopoc.memento.AbstractMemento;
 import ch.jacopoc.memento.Originator;
 
-class TextArea extends JTextArea implements Originator<String> {
+class TextEditor extends JTextArea implements Originator<EditorContent> {
 
 	private static final long serialVersionUID = 1L;
 	private final DocumentListener listener;
@@ -17,26 +16,21 @@ class TextArea extends JTextArea implements Originator<String> {
 	 * @param cols
 	 * @param listener
 	 */
-	public TextArea(int rows, int cols, DocumentListener listener) {
+	public TextEditor(int rows, int cols, DocumentListener listener) {
 		super(rows, cols);
 		this.listener = listener;
 		getDocument().addDocumentListener(listener);
 	}
-	
+
 	@Override
-	public void setState(String state) {
-		setText(state);
+	public EditorContent createMemento() {
+		return new EditorContent(getText());
 	}
 
 	@Override
-	public Memento createMemento() {
-		return new Memento(getText());
-	}
-
-	@Override
-	public void restore(AbstractMemento memento) {
+	public void restore(EditorContent memento) {
 		getDocument().removeDocumentListener(listener);
-		setText(((Memento)memento).state);
+		setText(memento.state);
 		getDocument().addDocumentListener(listener);
 	}
 }

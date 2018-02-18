@@ -3,33 +3,25 @@ package ch.jacopoc.memento;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * 
  * @author Jacopo Carravieri
  *
  */
-public class Caretaker {
+public class Caretaker<T extends IMemento> {
 
-	private List<AbstractMemento> savedStates;
+	private List<T> savedStates;
 	private int currentState;
 	
 	/**
 	 * 
+	 * @param emptyState
 	 */
-	public Caretaker() {
+	public Caretaker(T emptyState) {
 		savedStates = new ArrayList<>();
 		currentState = -1;
-	}
-	
-	/**
-	 * 
-	 * @param initialState
-	 */
-	public Caretaker(AbstractMemento initialState) {
-		this();
-		saveState(initialState);
+		saveState(emptyState);
 	}
 	
 	/**
@@ -61,12 +53,12 @@ public class Caretaker {
 	 * 
 	 * @return
 	 */
-	public AbstractMemento previous() {
-		if(hasPrevious()) {
-			// Rollback 
-			return savedStates.get(--currentState);
+	public T previous() {
+		if(!hasPrevious()) {
+			return null;
 		}
-		throw new NoSuchElementException();
+		// Rollback 
+		return savedStates.get(--currentState);
 	}
 	
 	/**
@@ -82,31 +74,31 @@ public class Caretaker {
 	 * 
 	 * @return
 	 */
-	public AbstractMemento next() {
-		if(hasNext()) {
-			// Restore
-			return savedStates.get(++currentState);
+	public T next() {
+		if(!hasNext()) {
+			return null;
 		}
-		throw new NoSuchElementException();
+		// Restore
+		return savedStates.get(++currentState);
 	}
 	
 	/**
 	 * 
 	 * @return
 	 */
-	public AbstractMemento current() {
-		if(size() > 0) {
-			// Current cursor position
-			return savedStates.get(currentState);
+	public T current() {
+		if(isEmpty()) {
+			return null;
 		}
-		throw new NoSuchElementException();
+		// Current cursor position
+		return savedStates.get(currentState);
 	}
 	
 	/**
 	 * 
 	 * @param memento
 	 */
-	public void saveState(AbstractMemento memento) {
+	public void saveState(T memento) {
 		// Drop the previous, diverging timeline
 		if(hasNext()) {
 			savedStates = savedStates.subList(0, currentState + 1);
@@ -118,6 +110,6 @@ public class Caretaker {
 	
 	@Override
 	public String toString() {
-		return Arrays.deepToString(savedStates.toArray());
+		return "History: " + Arrays.deepToString(savedStates.toArray());
 	}
 }

@@ -22,30 +22,38 @@ public class Graphic {
 		
 		@Override
 		public String toString() {
-			return "[" + x + ";" + y + "]";
+			return "[x=" + x + ",y=" + y + "]";
 		}
 	}
 
+	private static int IdFactory = 0;
+	private final int id;
 	private Point position;
 	
 	public Graphic(Point position) {
+		this.id = IdFactory++;
 		this.position = position;
 	}
 	
 	public Graphic(int posX, int posY) {
-		this.position = new Point(posX, posY);
+		this(new Point(posX, posY));
 	}
 	
 	void move(Point delta) {
 		position = position.add(delta);
+		System.out.print("Moving " + getName() + " of " + delta + " => ");
 	}
 	
 	public Point getPosition() {
 		return position;
 	}
 	
+	public String getName() {
+		return "{Graphic:" + id + "}";
+	}
+	
 	@Override
 	public String toString() {
-		return "{Graphic:" + hashCode() + "} at:" + position.toString(); 
+		return getName() + " is at " + position.toString(); 
 	}
 }
