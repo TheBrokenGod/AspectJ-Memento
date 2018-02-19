@@ -13,7 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import ch.jacopoc.memento.Caretaker;
+import ch.jacopoc.memento.History;
 
 public class SwingNotepad extends JFrame implements DocumentListener {
 
@@ -26,7 +26,7 @@ public class SwingNotepad extends JFrame implements DocumentListener {
 	private final JButton redo;
 	private final JLabel time;
 	private final TextEditor editor;
-	private final Caretaker<EditorContent> caretaker;
+	private final History<EditorContent> history;
 	
 	public SwingNotepad() {
 		// Init editor's Swing GUI
@@ -49,45 +49,42 @@ public class SwingNotepad extends JFrame implements DocumentListener {
 		// Init editor's memento logic
 		undo.addActionListener(e -> undo());
 		redo.addActionListener(e -> redo());
-		caretaker = new Caretaker<>(editor.createMemento());
+		history = new History<>(editor.createMemento());
+		history.onEnter = editor::restore;
 	}
 
 	@Override
 	public void changedUpdate(DocumentEvent e) {
-		saveMemento();
+		System.err.println(e.getOffset());
 	}
 
 	@Override
 	public void insertUpdate(DocumentEvent e) {
-		saveMemento();
+		saveMemento(new EditorEvent(editor, EditorEvent.INSERTION, e.getOffset(), e.getLength()));
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
-		saveMemento();
+		saveMemento(new EditorEvent(editor, EditorEvent.REMOVAL, e.getOffset(), e.getLength()));
 	}
 	
-	private void saveMemento() {
-		caretaker.saveState(editor.createMemento());
-		System.out.println(caretaker);
+	private void saveMemento(EditorEvent editorEvent) {
+		history.saveState(editor.createMemento());
 		displayTime();
+		System.out.println(history);
 	}
 	
 	public void undo() {
-		if(caretaker.hasPrevious()) {
-			editor.restore(caretaker.previous());
-			displayTime();
-		}
+		history.moveBack();
+		displayTime();
 	}
 	
 	public void redo() {
-		if(caretaker.hasNext()) {
-			editor.restore(caretaker.next());
-			displayTime();
-		}
+		history.moveForward();
+		displayTime();
 	}
 	
 	public void displayTime() {
-		time.setText(new Date(((EditorContent)caretaker.current()).created).toString());
+		time.setText(new Date(history.current().created).toString());
 	}
 }

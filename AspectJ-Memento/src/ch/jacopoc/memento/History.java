@@ -3,25 +3,32 @@ package ch.jacopoc.memento;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 
  * @author Jacopo Carravieri
  *
  */
-public class Caretaker<T extends IMemento> {
+public class History<T extends IMemento> {
 
 	private List<T> savedStates;
 	private int currentState;
+	
+	public Consumer<T> onEnter = null;
+	public Consumer<T> onExit = null;
+	public Consumer<T> onEnterFromPrevious = null;
+	public Consumer<T> onEnterFromNext = null;
+	public Consumer<T> onExitToPrevious = null;
+	public Consumer<T> onExitToNext = null;
 	
 	/**
 	 * 
 	 * @param emptyState
 	 */
-	public Caretaker(T emptyState) {
-		savedStates = new ArrayList<>();
-		currentState = -1;
-		saveState(emptyState);
+	public History(T emptyState) {
+		savedStates = new ArrayList<>(Arrays.asList(emptyState));
+		currentState = 0;
 	}
 	
 	/**
@@ -36,8 +43,8 @@ public class Caretaker<T extends IMemento> {
 	 * 
 	 * @return
 	 */
-	public boolean isEmpty() {
-		return savedStates.isEmpty();
+	public T current() {
+		return savedStates.get(currentState);
 	}
 	
 	/**
@@ -45,7 +52,6 @@ public class Caretaker<T extends IMemento> {
 	 * @return
 	 */
 	public boolean hasPrevious() {
-		// If not at first state
 		return currentState > 0;
 	}
 	
@@ -54,10 +60,6 @@ public class Caretaker<T extends IMemento> {
 	 * @return
 	 */
 	public T previous() {
-		if(!hasPrevious()) {
-			return null;
-		}
-		// Rollback 
 		return savedStates.get(--currentState);
 	}
 	
@@ -65,9 +67,29 @@ public class Caretaker<T extends IMemento> {
 	 * 
 	 * @return
 	 */
+	public boolean moveBack() {
+		if(hasPrevious()) {
+			trigger(onExit);
+			trigger(onExitToPrevious);
+			currentState -= 1;
+			trigger(onEnter);
+			trigger(onEnterFromNext);
+			return true;
+		}
+		return false;
+	}
+	
+	private void trigger(Consumer<T> callback) {
+		if(callback != null)
+			callback.accept(current());
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean hasNext() {
-		// If not at most recent state
-		return currentState < savedStates.size() - 1;
+		return currentState <= savedStates.size()-2;
 	}
 	
 	/**
@@ -75,10 +97,6 @@ public class Caretaker<T extends IMemento> {
 	 * @return
 	 */
 	public T next() {
-		if(!hasNext()) {
-			return null;
-		}
-		// Restore
 		return savedStates.get(++currentState);
 	}
 	
@@ -86,12 +104,16 @@ public class Caretaker<T extends IMemento> {
 	 * 
 	 * @return
 	 */
-	public T current() {
-		if(isEmpty()) {
-			return null;
+	public boolean moveForward() {
+		if(hasNext()) {
+			trigger(onExit);
+			trigger(onExitToNext);
+			currentState += 1;
+			trigger(onEnter);
+			trigger(onEnterFromPrevious);
+			return true;
 		}
-		// Current cursor position
-		return savedStates.get(currentState);
+		return false;
 	}
 	
 	/**

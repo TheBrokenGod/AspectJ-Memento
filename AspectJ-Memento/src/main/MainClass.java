@@ -1,6 +1,6 @@
 package main;
 
-import ch.jacopoc.memento.Caretaker;
+import ch.jacopoc.memento.History;
 import gamma.Command;
 import gamma.Graphic;
 import orig.SwingNotepad;
@@ -8,22 +8,22 @@ import orig.SwingNotepad;
 public class MainClass {
 	
 	private static void gamma() {
-		Caretaker<Command> caretaker = new Caretaker<>(Command.nop());
-		System.out.println(caretaker);
+		History<Command> history = new History<>(Command.nop());
+		System.out.println(history);
 		Graphic g1 = new Graphic(20, 20);
 		Graphic g2 = new Graphic(0, 0);
-		caretaker.saveState(Command.move(g1, new Graphic.Point(3, 7)));
-		caretaker.saveState(Command.move(g1, new Graphic.Point(4, 5)));
-		caretaker.saveState(Command.addConstraint(g1, g2));
-		System.out.println(caretaker);
-		Command cmd = caretaker.current();
+		history.saveState(Command.move(g1, new Graphic.Point(3, 7)));
+		history.saveState(Command.move(g1, new Graphic.Point(4, 5)));
+		history.saveState(Command.addConstraint(g1, g2));
+		System.out.println(history);
+		Command cmd = history.current();
 		while(cmd != null) {
 			cmd.restore(null);
-			cmd = caretaker.previous();
+			cmd = history.hasPrevious() ? history.previous() : null;
 		}
-		System.out.println(caretaker);
-		caretaker.saveState(Command.addConstraint(g1, g2));
-		System.out.println(caretaker);
+		System.out.println(history);
+		history.saveState(Command.addConstraint(g1, g2));
+		System.out.println(history);
 	}
 	
 	private static void original() {
