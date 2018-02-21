@@ -25,8 +25,10 @@ public class SwingNotepad extends JFrame implements DocumentListener {
 	private final JButton undo;
 	private final JButton redo;
 	private final JLabel time;
-	private final TextEditor editor;
 	private final History<EditorContent> history;
+	private final History<EditorEvent> history2;
+	final TextEditor editor;
+	String prevState;
 	
 	public SwingNotepad() {
 		// Init editor's Swing GUI
@@ -50,37 +52,49 @@ public class SwingNotepad extends JFrame implements DocumentListener {
 		undo.addActionListener(e -> undo());
 		redo.addActionListener(e -> redo());
 		history = new History<>(editor.createMemento());
-		history.onEnter = editor::restore;
+//		history.onEnter = editor::restore;
+		history2 = new History<>(editor.createMemento2(this, null));
+		history2.onExitToPrevious = this::rollback;
+		history2.onEnterFromPrevious = this::restore;
+		prevState = "";
 	}
-
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		System.err.println(e.getOffset());
+	
+	private void rollback(EditorEvent memento) {
+		memento.undo(this);
+	}
+	
+	private void restore(EditorEvent memento) {
+		memento.redo(this);
 	}
 
 	@Override
 	public void insertUpdate(DocumentEvent e) {
-		saveMemento(new EditorEvent(editor, EditorEvent.INSERTION, e.getOffset(), e.getLength()));
+		changedUpdate(e);
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
-		saveMemento(new EditorEvent(editor, EditorEvent.REMOVAL, e.getOffset(), e.getLength()));
+		changedUpdate(e);
 	}
 	
-	private void saveMemento(EditorEvent editorEvent) {
+	@Override
+	public void changedUpdate(DocumentEvent e) {
 		history.saveState(editor.createMemento());
+		history2.saveState(editor.createMemento2(this, e));
+		prevState = editor.getText();
 		displayTime();
 		System.out.println(history);
 	}
 	
 	public void undo() {
 		history.moveBack();
+		history2.moveBack();
 		displayTime();
 	}
 	
 	public void redo() {
 		history.moveForward();
+		history2.moveForward();
 		displayTime();
 	}
 	

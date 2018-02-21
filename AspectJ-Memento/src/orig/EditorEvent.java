@@ -1,49 +1,71 @@
 package orig;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentEvent.EventType;
 
-import ch.jacopoc.memento.IMemento;
+import ch.jacopoc.memento.Memento;
 
-public class EditorEvent implements IMemento {
+public class EditorEvent implements Memento {
 
-	public static final int INSERTION = 1, REMOVAL = 0;
+	private final EventType type;
+	private final String delta;
+	private final int offset;
+	private StringBuilder str;
 	
-	private final int eventType;
-	private final TextEditor editor;
-//	private final int offset;
-	
-	
-	public EditorEvent(TextEditor editor, int eventType, int offset, int length) {
-		this.eventType = eventType;
-		this.editor = editor;
-//		this.offset = offset;
+	public EditorEvent(SwingNotepad notepad, DocumentEvent e) {
+		if(e == null) {
+			type = null;
+			delta = null;
+			offset = -1;
+			return;
+		}
+		else {
+			offset = e.getOffset();
+			if(e.getType() == EventType.INSERT) {
+				type = EventType.INSERT;
+				delta = notepad.editor.getText().substring(e.getOffset(), e.getOffset() + e.getLength());
+			}
+			else if(e.getType() == EventType.REMOVE) {
+				type = EventType.REMOVE;
+				delta = notepad.prevState.substring(e.getOffset(), e.getOffset() + e.getLength());
+			}
+			else {
+				type = EventType.CHANGE;
+				delta = null;
+			}
+		}
+		System.out.println(delta + " at " + offset);
 	}
 	
-	public void redo() {
-		if(eventType == INSERTION) {
-			List<Character> document = stringToList();
-			//
+	public void undo(SwingNotepad notepad) {
+		if(type == null) {
+			return;
 		}
-		else if(eventType == REMOVAL) {
-			
+		else if(type == EventType.INSERT) {
+			str = new StringBuilder(notepad.editor.getText());
+			str.delete(offset, delta.length());
+		}
+		else if(type == EventType.REMOVE) {
+		}
+		System.out.println(this);
+	}
+
+	public void redo(SwingNotepad notepad) {
+		if(type == null) {
+			return;
+		}
+		else if(type == EventType.INSERT) {
+			str = new StringBuilder(notepad.editor.getText());
+			str.insert(offset, delta);
+			// Insert characters at offset
+		}
+		else if(type == EventType.REMOVE) {
+			// Store from SwingNotepad.PrevState
 		}
 	}
 	
-	public void undo() {
-		if(eventType == INSERTION) {
-			
-		}
-		else if(eventType == REMOVAL) {
-			
-		}
-	}
-	
-	private List<Character> stringToList() {
-		List<Character> list = new ArrayList<>(editor.getText().length());
-		for(char c : editor.getText().toCharArray()) {
-			list.add(c);
-		}
-		return list;
+	@Override
+	public String toString() {
+		return str.toString();
 	}
 }

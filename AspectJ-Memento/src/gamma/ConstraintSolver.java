@@ -1,6 +1,6 @@
 package gamma;
 
-import ch.jacopoc.memento.IMemento;
+import ch.jacopoc.memento.Memento;
 import ch.jacopoc.memento.Originator;
 
 class ConstraintSolver implements Originator<ConstraintSolver.InternalState> {
@@ -8,7 +8,7 @@ class ConstraintSolver implements Originator<ConstraintSolver.InternalState> {
 	/**
 	 * Nesting class as a replacement of C++ friend statement
 	 */
-	static class InternalState implements IMemento {
+	static class InternalState implements Memento {
 		
 		private final long state;
 		
@@ -42,7 +42,7 @@ class ConstraintSolver implements Originator<ConstraintSolver.InternalState> {
 	}
 	
 	@Override
-	public InternalState createMemento() {
+	public InternalState createMemento(Object... args) {
 		System.out.print("Saving " + internalStatePlaceholder + " => ");
 		return new InternalState(internalStatePlaceholder++);
 	}

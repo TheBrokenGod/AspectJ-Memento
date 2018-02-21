@@ -1,6 +1,7 @@
 package orig;
 
 import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import ch.jacopoc.memento.Originator;
@@ -23,8 +24,12 @@ class TextEditor extends JTextArea implements Originator<EditorContent> {
 	}
 
 	@Override
-	public EditorContent createMemento() {
+	public EditorContent createMemento(Object... args) {
 		return new EditorContent(getText());
+	}
+
+	public EditorEvent createMemento2(Object... args) {
+		return new EditorEvent((SwingNotepad)args[0], (DocumentEvent)args[1]);
 	}
 
 	@Override

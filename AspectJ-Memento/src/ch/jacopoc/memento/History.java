@@ -10,7 +10,7 @@ import java.util.function.Consumer;
  * @author Jacopo Carravieri
  *
  */
-public class History<T extends IMemento> {
+public class History<T extends Memento> {
 
 	private List<T> savedStates;
 	private int currentState;
@@ -68,15 +68,15 @@ public class History<T extends IMemento> {
 	 * @return
 	 */
 	public boolean moveBack() {
-		if(hasPrevious()) {
-			trigger(onExit);
-			trigger(onExitToPrevious);
-			currentState -= 1;
-			trigger(onEnter);
-			trigger(onEnterFromNext);
-			return true;
+		if(!hasPrevious()) {
+			return false;
 		}
-		return false;
+		trigger(onExit);
+		trigger(onExitToPrevious);
+		currentState -= 1;
+		trigger(onEnter);
+		trigger(onEnterFromNext);
+		return true;
 	}
 	
 	private void trigger(Consumer<T> callback) {
@@ -89,7 +89,7 @@ public class History<T extends IMemento> {
 	 * @return
 	 */
 	public boolean hasNext() {
-		return currentState <= savedStates.size()-2;
+		return currentState <= savedStates.size() - 2;
 	}
 	
 	/**
@@ -105,15 +105,15 @@ public class History<T extends IMemento> {
 	 * @return
 	 */
 	public boolean moveForward() {
-		if(hasNext()) {
-			trigger(onExit);
-			trigger(onExitToNext);
-			currentState += 1;
-			trigger(onEnter);
-			trigger(onEnterFromPrevious);
-			return true;
+		if(!hasNext()) {
+			return false;
 		}
-		return false;
+		trigger(onExit);
+		trigger(onExitToNext);
+		currentState += 1;
+		trigger(onEnter);
+		trigger(onEnterFromPrevious);
+		return true;
 	}
 	
 	/**

@@ -1,9 +1,9 @@
 package gamma;
 
-import ch.jacopoc.memento.IMemento;
+import ch.jacopoc.memento.Memento;
 import ch.jacopoc.memento.Originator;
 
-abstract public class Command implements IMemento, Originator<Command> {
+abstract public class Command implements Memento, Originator<Command> {
 
 	private ConstraintSolver.InternalState state;
 	
@@ -32,7 +32,7 @@ abstract public class Command implements IMemento, Originator<Command> {
 	abstract protected void doUnexecute();
 
 	@Override
-	public Command createMemento() {
+	public Command createMemento(Object... args) {
 		return this;
 	}
 

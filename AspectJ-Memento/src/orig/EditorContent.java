@@ -1,8 +1,8 @@
 package orig;
 
-import ch.jacopoc.memento.IMemento;
+import ch.jacopoc.memento.Memento;
 
-class EditorContent implements IMemento {
+class EditorContent implements Memento {
 
 	final long created;
 	final String state;

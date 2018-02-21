@@ -5,12 +5,12 @@ package ch.jacopoc.memento;
  * @author Jacopo
  *
  */
-public interface Originator<T extends IMemento> {	
+public interface Originator<T extends Memento> {	
 	/**
 	 * 
 	 * @return
 	 */
-	public T createMemento();
+	public T createMemento(Object... args);
 	
 	/**
 	 * 
