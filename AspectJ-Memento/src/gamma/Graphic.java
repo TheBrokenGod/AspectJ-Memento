@@ -1,59 +1,29 @@
 package gamma;
 
+import java.awt.Point;
+
 public class Graphic {
+
+	final String name;
+	Point position;
+	int radius;
 	
-	static public class Point {
-		
-		public final int x;
-		public final int y;
-		
-		public Point(int x, int y) {
-			this.x = x;
-			this.y = y;
-		}
-		
-		public Point add(Point p) {
-			return new Point(x + p.x, y + p.y);
-		}
-		
-		public Point minus() {
-			return new Point(-x, -y);
-		}
-		
-		@Override
-		public String toString() {
-			return "[x=" + x + ",y=" + y + "]";
-		}
+	public Graphic(String name, Point position, int radius) {
+		this.name = name;
+		this.position = position;
+		this.radius = radius;
 	}
 
-	private static int IdFactory = 0;
-	private final int id;
-	private Point position;
-	
-	public Graphic(Point position) {
-		this.id = IdFactory++;
-		this.position = position;
-	}
-	
-	public Graphic(int posX, int posY) {
-		this(new Point(posX, posY));
-	}
-	
 	void move(Point delta) {
-		position = position.add(delta);
-		System.out.print("Moving " + getName() + " of " + delta + " => ");
+		position = new Point(position.x + delta.x, position.y + delta.y);
 	}
 	
-	public Point getPosition() {
-		return position;
-	}
-	
-	public String getName() {
-		return "{Graphic:" + id + "}";
+	int d() {
+		return 2 * radius;
 	}
 	
 	@Override
 	public String toString() {
-		return getName() + " is at " + position.toString(); 
+		return "{Graphic:" + name + "}" + " at " + position.toString(); 
 	}
 }

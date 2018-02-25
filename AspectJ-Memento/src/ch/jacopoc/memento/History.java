@@ -3,24 +3,16 @@ package ch.jacopoc.memento;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * 
  * @author Jacopo Carravieri
  *
  */
-public class History<T extends Memento> {
+public class History<T extends Memento<T>> {
 
 	private List<T> savedStates;
 	private int currentState;
-	
-	public Consumer<T> onEnter = null;
-	public Consumer<T> onExit = null;
-	public Consumer<T> onEnterFromPrevious = null;
-	public Consumer<T> onEnterFromNext = null;
-	public Consumer<T> onExitToPrevious = null;
-	public Consumer<T> onExitToNext = null;
 	
 	/**
 	 * 
@@ -71,17 +63,12 @@ public class History<T extends Memento> {
 		if(!hasPrevious()) {
 			return false;
 		}
-		trigger(onExit);
-		trigger(onExitToPrevious);
+		current().onExit();
+		current().onExitToPrevious();
 		currentState -= 1;
-		trigger(onEnter);
-		trigger(onEnterFromNext);
+		current().onEnter();
+		current().onEnterFromNext();
 		return true;
-	}
-	
-	private void trigger(Consumer<T> callback) {
-		if(callback != null)
-			callback.accept(current());
 	}
 	
 	/**
@@ -108,11 +95,11 @@ public class History<T extends Memento> {
 		if(!hasNext()) {
 			return false;
 		}
-		trigger(onExit);
-		trigger(onExitToNext);
+		current().onExit();
+		current().onExitToNext();
 		currentState += 1;
-		trigger(onEnter);
-		trigger(onEnterFromPrevious);
+		current().onEnter();
+		current().onEnterFromPrevious();
 		return true;
 	}
 	
@@ -121,17 +108,18 @@ public class History<T extends Memento> {
 	 * @param memento
 	 */
 	public void saveState(T memento) {
-		// Drop the previous, diverging timeline
+		// Drop the previous diverging timeline
 		if(hasNext()) {
 			savedStates = savedStates.subList(0, currentState + 1);
 		}
-		// New memento becomes the most recent state
 		savedStates.add(memento);
 		currentState++;
+		// Trigger newly added memento
+		current().onAddToHistory(this);
 	}
 	
 	@Override
 	public String toString() {
-		return "History: " + Arrays.deepToString(savedStates.toArray());
+		return "{History} " + Arrays.deepToString(savedStates.toArray());
 	}
 }

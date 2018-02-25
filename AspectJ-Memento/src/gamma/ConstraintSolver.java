@@ -1,55 +1,49 @@
 package gamma;
 
-import ch.jacopoc.memento.Memento;
-import ch.jacopoc.memento.Originator;
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 
-class ConstraintSolver implements Originator<ConstraintSolver.InternalState> {
-
-	/**
-	 * Nesting class as a replacement of C++ friend statement
-	 */
-	static class InternalState implements Memento {
+class ConstraintSolver  {
+	
+	class Constraint {
 		
-		private final long state;
+		final Graphic startConnection;
+		final Graphic endConnection;
+		Point[] solution;
 		
-		private InternalState(long state) {
-			this.state = state;
+		Constraint(Graphic startConnection, Graphic endConnection) {
+			this.startConnection = startConnection;
+			this.endConnection = endConnection;
+			this.solution = null;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			return startConnection == ((Constraint)obj).startConnection && endConnection == ((Constraint)obj).endConnection;
 		}
 	}
 	
-	static private final ConstraintSolver instance = new ConstraintSolver();
-	
-	private long internalStatePlaceholder;
-	
-	private ConstraintSolver() {
-		internalStatePlaceholder = 0;
-	}
-	
-	public static ConstraintSolver getInstance() {
-		return instance;
-	}
+	final List<Constraint> constraints = new ArrayList<>();
 	
 	void solve() {
-		System.out.println("Solving " + internalStatePlaceholder);
+		constraints.stream().filter(c -> c.solution == null).forEach(c -> {
+			c.solution = new Point[] {
+				new Point(c.startConnection.position.x + c.startConnection.radius, c.startConnection.position.y + c.startConnection.radius),
+				new Point(c.endConnection.position.x + c.endConnection.radius, c.endConnection.position.y + c.endConnection.radius)
+			};
+		});
 	}
 	
 	void addConstraint(Graphic startConnection, Graphic endConnection) {
-		System.out.print("Connecting " + startConnection.getName() + " and " + endConnection.getName() + " => ");
+		constraints.add(new Constraint(startConnection, endConnection));
 	}
 	
 	void removeConstraint(Graphic startConnection, Graphic endConnection) {
-		System.out.print("Disconnecting " + startConnection.getName() + " and " + endConnection.getName() + " => ");
+		constraints.remove(new Constraint(startConnection, endConnection));
 	}
 	
-	@Override
-	public InternalState createMemento(Object... args) {
-		System.out.print("Saving " + internalStatePlaceholder + " => ");
-		return new InternalState(internalStatePlaceholder++);
-	}
-	
-	@Override
-	public void restore(InternalState memento) {
-		internalStatePlaceholder = memento.state;
-		System.out.print("Restoring " + internalStatePlaceholder + " => ");
+	void recomputeConstraints(Graphic movedGraphic) {
+		constraints.stream().filter(c -> c.startConnection == movedGraphic || c.endConnection == movedGraphic).forEach(c -> c.solution = null);
 	}
 }

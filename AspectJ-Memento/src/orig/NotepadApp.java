@@ -2,7 +2,7 @@ package orig;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -15,22 +15,21 @@ import javax.swing.event.DocumentListener;
 
 import ch.jacopoc.memento.History;
 
-public class SwingNotepad extends JFrame implements DocumentListener {
-
+public class NotepadApp extends JFrame implements DocumentListener {
+	
 	private static final long serialVersionUID = 1L;
 	private static final int BORDER = 5;
 	private static final String TITLE = "Memento Notepad";
-
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss:SSS");
+	
 	private final JPanel toolbar;
 	private final JButton undo;
 	private final JButton redo;
 	private final JLabel time;
-	private final History<EditorContent> history;
-	private final History<EditorEvent> history2;
+	final History<TextEditor.TextEvent> history;
 	final TextEditor editor;
-	String prevState;
 	
-	public SwingNotepad() {
+	public NotepadApp() {
 		// Init editor's Swing GUI
 		setLayout(new BorderLayout());
 		toolbar = new JPanel(new FlowLayout());
@@ -48,23 +47,11 @@ public class SwingNotepad extends JFrame implements DocumentListener {
 		setTitle(TITLE);
 		pack();
 		setVisible(true);
-		// Init editor's memento logic
-		undo.addActionListener(e -> undo());
-		redo.addActionListener(e -> redo());
+		// Init memento logic
 		history = new History<>(editor.createMemento());
-//		history.onEnter = editor::restore;
-		history2 = new History<>(editor.createMemento2(this, null));
-		history2.onExitToPrevious = this::rollback;
-		history2.onEnterFromPrevious = this::restore;
-		prevState = "";
-	}
-	
-	private void rollback(EditorEvent memento) {
-		memento.undo(this);
-	}
-	
-	private void restore(EditorEvent memento) {
-		memento.redo(this);
+		undo.addActionListener(e -> history.moveBack());
+		redo.addActionListener(e -> history.moveForward());
+		displayTime();
 	}
 
 	@Override
@@ -79,26 +66,10 @@ public class SwingNotepad extends JFrame implements DocumentListener {
 	
 	@Override
 	public void changedUpdate(DocumentEvent e) {
-		history.saveState(editor.createMemento());
-		history2.saveState(editor.createMemento2(this, e));
-		prevState = editor.getText();
-		displayTime();
-		System.out.println(history);
+		history.saveState(editor.createMemento(e));
 	}
 	
-	public void undo() {
-		history.moveBack();
-		history2.moveBack();
-		displayTime();
-	}
-	
-	public void redo() {
-		history.moveForward();
-		history2.moveForward();
-		displayTime();
-	}
-	
-	public void displayTime() {
-		time.setText(new Date(history.current().created).toString());
+	void displayTime() {
+		time.setText(FORMATTER.format(history.current().created));
 	}
 }
