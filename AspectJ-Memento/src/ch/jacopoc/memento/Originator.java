@@ -10,9 +10,7 @@ public interface Originator<T extends Memento<T>> {
 	 * 
 	 * @return
 	 */
-	default public T createMemento(Object... args) {
-		throw new UnsupportedOperationException();
-	}
+	public T createMemento(Object... args);
 	
 	/**
 	 * 

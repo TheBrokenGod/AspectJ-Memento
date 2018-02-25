@@ -114,7 +114,7 @@ public class History<T extends Memento<T>> {
 		}
 		savedStates.add(memento);
 		currentState++;
-		// Trigger newly added memento
+		// Trigger the new memento
 		current().onAddToHistory(this);
 	}
 	

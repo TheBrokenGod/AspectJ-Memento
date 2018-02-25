@@ -11,7 +11,7 @@ import ch.jacopoc.memento.Originator;
 class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 
 	private static final long serialVersionUID = 1L;
-	private final NotepadApp app;
+	private NotepadApp app;
 	private String prevState;
 	
 	/**
@@ -20,11 +20,15 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 	 * @param cols
 	 * @param listener
 	 */
-	public TextEditor(int rows, int cols, NotepadApp app) {
-		super(rows, cols);
-		this.app = app;
-		getDocument().addDocumentListener(app);
+	public TextEditor() {
+		super();
+		app = null;
 		prevState = "";
+	}
+	
+	void setApp(NotepadApp app) {
+		this.app = app;
+		getDocument().addDocumentListener(app);		
 	}
 	
 	/**
@@ -78,7 +82,7 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 		
 		@Override
 		protected void onEnter() {
-			System.out.println(app.history);
+			System.out.println(app.getHistory());
 			app.displayTime();
 		}
 		
@@ -103,7 +107,7 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 			if(str.length() == 0) {
 				return "0";
 			}
-			return (type == EventType.INSERT ? "+" : "-") + delta + (this == app.history.current() ? "<>" : ""); 
+			return (type == EventType.INSERT ? "+" : "-") + delta.replaceAll("\n", "\\\\n") + (this == app.getHistory().current() ? "<>" : ""); 
 		}
 	}
 

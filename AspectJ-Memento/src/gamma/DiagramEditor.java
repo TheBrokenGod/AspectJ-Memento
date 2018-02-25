@@ -12,9 +12,10 @@ import javax.swing.JPanel;
 
 import ch.jacopoc.memento.History;
 import ch.jacopoc.memento.Memento;
+import ch.jacopoc.memento.Originator;
 import gamma.ConstraintSolver.Constraint;
 
-public class DiagramEditor extends JPanel {
+public class DiagramEditor extends JPanel implements Originator<DiagramEditor.Command> {
 	
 	static private final long serialVersionUID = 1L;
 	
@@ -33,6 +34,7 @@ public class DiagramEditor extends JPanel {
 		@Override
 		protected void onAddToHistory(History<Command> history) {
 			onEnterFromPrevious();
+			System.out.println(history);
 		}
 		
 		@Override
@@ -51,6 +53,11 @@ public class DiagramEditor extends JPanel {
 		
 		abstract protected void execute();
 		abstract protected void unexecute();
+		
+		@Override
+		public String toString() {
+			return getClass().getSimpleName();
+		}
 	}
 	
 	private class EmptyCommand extends Command {
@@ -64,6 +71,11 @@ public class DiagramEditor extends JPanel {
 	
 	public Command emptyCommand() {
 		return new EmptyCommand();
+	}
+	
+	@Override
+	public Command createMemento(Object... args) {
+		return emptyCommand();
 	}
 
 	private class AddGraphic extends Command {
@@ -149,6 +161,7 @@ public class DiagramEditor extends JPanel {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D)g;
+		g2d.setColor(new Color(0, 100, 0));
 		g2d.setStroke(new BasicStroke(2));
 		// Draw blocks
 		for(Graphic graphic : graphics.values()) {
