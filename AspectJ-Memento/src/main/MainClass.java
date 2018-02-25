@@ -1,7 +1,6 @@
 package main;
 
 import gamma.DiagramApp;
-import orig.NotepadApp;
 
 public class MainClass {
 	

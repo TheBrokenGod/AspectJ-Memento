@@ -1,4 +1,4 @@
-package orig;
+package main;
 
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
