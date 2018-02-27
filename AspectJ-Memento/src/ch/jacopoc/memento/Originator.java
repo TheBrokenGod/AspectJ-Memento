@@ -5,18 +5,17 @@ package ch.jacopoc.memento;
  * @author Jacopo
  *
  */
-public interface Originator<T extends Memento<T>> {	
+public interface Originator {	
 	/**
 	 * 
 	 * @return
 	 */
-	public T createMemento(Object... args);
+	public Memento createMemento(Object... args);
 	
 	/**
 	 * 
 	 * @param memento
 	 */
-	default public void restore(T memento) {
-		throw new UnsupportedOperationException();
+	default public void restore(Memento memento) {
 	}
 }

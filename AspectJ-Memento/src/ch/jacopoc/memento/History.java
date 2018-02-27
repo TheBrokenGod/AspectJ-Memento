@@ -9,17 +9,18 @@ import java.util.List;
  * @author Jacopo Carravieri
  *
  */
-public class History<T extends Memento<T>> {
+public class History {
 
-	private List<T> savedStates;
+	private List<Memento> savedStates;
 	private int currentState;
 	
 	/**
 	 * 
 	 * @param emptyState
 	 */
-	public History(T emptyState) {
-		savedStates = new ArrayList<>(Arrays.asList(emptyState));
+	public History(Memento initialState) {
+		savedStates = new ArrayList<>();
+		savedStates.add(initialState);
 		currentState = 0;
 	}
 	
@@ -35,8 +36,12 @@ public class History<T extends Memento<T>> {
 	 * 
 	 * @return
 	 */
-	public T current() {
+	public Memento current() {
 		return savedStates.get(currentState);
+	}
+	
+	public boolean isCurrent(Memento state) {
+		return state == current();
 	}
 	
 	/**
@@ -51,7 +56,7 @@ public class History<T extends Memento<T>> {
 	 * 
 	 * @return
 	 */
-	public T previous() {
+	public Memento previous() {
 		return savedStates.get(--currentState);
 	}
 	
@@ -83,7 +88,7 @@ public class History<T extends Memento<T>> {
 	 * 
 	 * @return
 	 */
-	public T next() {
+	public Memento next() {
 		return savedStates.get(++currentState);
 	}
 	
@@ -107,14 +112,13 @@ public class History<T extends Memento<T>> {
 	 * 
 	 * @param memento
 	 */
-	public void saveState(T memento) {
+	public void saveState(Memento memento) {
 		// Drop the previous diverging timeline
 		if(hasNext()) {
 			savedStates = savedStates.subList(0, currentState + 1);
 		}
 		savedStates.add(memento);
 		currentState++;
-		// Trigger the new memento
 		current().onAddToHistory(this);
 	}
 	

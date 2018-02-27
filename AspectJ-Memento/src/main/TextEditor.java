@@ -8,10 +8,10 @@ import ch.jacopoc.memento.History;
 import ch.jacopoc.memento.Memento;
 import ch.jacopoc.memento.Originator;
 
-class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
+class TextEditor extends JTextArea implements Originator {
 
 	private static final long serialVersionUID = 1L;
-	private NotepadApp app;
+	private final NotepadApp app;
 	private String prevState;
 	
 	/**
@@ -20,22 +20,17 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 	 * @param cols
 	 * @param listener
 	 */
-	public TextEditor() {
-		super();
-		app = null;
+	public TextEditor(NotepadApp app) {
+		this.app = app;	
 		prevState = "";
-	}
-	
-	void setApp(NotepadApp app) {
-		this.app = app;
-		getDocument().addDocumentListener(app);		
+		getDocument().addDocumentListener(app);
 	}
 	
 	/**
 	 * 
 	 *
 	 */
-	public class TextEvent extends Memento<TextEvent> {
+	public class TextEvent extends Memento {
 
 		private final EventType type;
 		private String delta;
@@ -45,7 +40,6 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 		private TextEvent(DocumentEvent e) {
 			if(e == null) {
 				type = null;
-				str = new StringBuilder();
 				return;
 			}
 			type = e.getType();
@@ -60,7 +54,7 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 		}
 		
 		@Override
-		protected void onAddToHistory(History<TextEvent> history) {
+		protected void onAddToHistory(History history) {
 			onEnter();
 		}
 		
@@ -82,7 +76,7 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 		
 		@Override
 		protected void onEnter() {
-			System.out.println(app.getHistory());
+			System.out.println(app.history());
 			app.displayTime();
 		}
 		
@@ -104,10 +98,7 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 		
 		@Override
 		public String toString() {
-			if(str.length() == 0) {
-				return "0";
-			}
-			return (type == EventType.INSERT ? "+" : "-") + delta.replaceAll("\n", "\\\\n") + (this == app.getHistory().current() ? "<>" : ""); 
+			return (type == null ? "0" : ((type == EventType.INSERT ? "+" : "-") + delta.replaceAll("\n", "\\\\n"))) + (app.history().isCurrent(this) ? "<>" : "");
 		}
 	}
 
@@ -125,9 +116,9 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 	}
 
 	@Override
-	public void restore(TextEvent memento) {
+	public void restore(Memento memento) {
 		getDocument().removeDocumentListener(app);
-		setText(memento.str.toString());
+		setText(((TextEvent)memento).str.toString());
 		getDocument().addDocumentListener(app);
 	}
 }

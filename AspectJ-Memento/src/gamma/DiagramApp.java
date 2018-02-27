@@ -2,7 +2,7 @@ package gamma;
 
 import ch.jacopoc.memento.MementoApp;
 
-public class DiagramApp extends MementoApp<DiagramEditor, DiagramEditor.Command> {
+public class DiagramApp extends MementoApp<DiagramEditor> {
 
 	private static final long serialVersionUID = 1L;		
 	

@@ -2,11 +2,11 @@ package ch.jacopoc.memento;
 
 import java.time.LocalDateTime;
 
-public class Memento<T extends Memento<T>> {
+public class Memento {
 	
 	public final LocalDateTime created = LocalDateTime.now();
 	
-	protected void onAddToHistory(History<T> history) {
+	protected void onAddToHistory(History history) {
 	}
 	protected void onEnter() {
 	}

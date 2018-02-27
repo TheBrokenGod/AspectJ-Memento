@@ -12,7 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-abstract public class MementoApp<C extends JComponent & Originator<M>, M extends Memento<M>> extends JFrame {
+abstract public class MementoApp<C extends JComponent & Originator> extends JFrame implements Caretaker {
 	
 	private static final long serialVersionUID = 1L;
 	private static final int BORDER = 5;
@@ -24,7 +24,7 @@ abstract public class MementoApp<C extends JComponent & Originator<M>, M extends
 	private final JLabel time;
 	
 	protected final C editor;
-	protected final History<M> history;
+	protected final History history;
 	
 	protected MementoApp(String title, C editor) {
 		this.editor = editor;
@@ -45,15 +45,11 @@ abstract public class MementoApp<C extends JComponent & Originator<M>, M extends
 		setSize(800, 600);
 		setVisible(true);
 		// Memento
-		history = new History<>(((Originator<M>)editor).createMemento());
+		history = new History(((Originator)editor).createMemento());
 		undo.addActionListener((e) -> {history.moveBack(); updateButtons();});
 		redo.addActionListener((e) -> {history.moveForward(); updateButtons();});
 		displayTime();
 		updateButtons();
-	}
-	
-	public History<M> getHistory() {
-		return history;
 	}
 	
 	public void displayTime() {

@@ -15,7 +15,7 @@ import ch.jacopoc.memento.Memento;
 import ch.jacopoc.memento.Originator;
 import gamma.ConstraintSolver.Constraint;
 
-public class DiagramEditor extends JPanel implements Originator<DiagramEditor.Command> {
+public class DiagramEditor extends JPanel implements Originator {
 	
 	static private final long serialVersionUID = 1L;
 	
@@ -29,10 +29,10 @@ public class DiagramEditor extends JPanel implements Originator<DiagramEditor.Co
 		setBackground(Color.WHITE);
 	}
 	
-	abstract class Command extends Memento<Command> {
+	abstract class Command extends Memento {
 		
 		@Override
-		protected void onAddToHistory(History<Command> history) {
+		protected void onAddToHistory(History history) {
 			onEnterFromPrevious();
 			System.out.println(history);
 		}
