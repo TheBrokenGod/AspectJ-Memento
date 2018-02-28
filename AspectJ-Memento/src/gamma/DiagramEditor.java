@@ -34,7 +34,6 @@ public class DiagramEditor extends JPanel implements Originator {
 		@Override
 		protected void onAddToHistory(History history) {
 			onEnterFromPrevious();
-			System.out.println(history);
 		}
 		
 		@Override

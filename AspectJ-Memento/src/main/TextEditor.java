@@ -55,7 +55,7 @@ class TextEditor extends JTextArea implements Originator {
 		
 		@Override
 		protected void onAddToHistory(History history) {
-			onEnter();
+			app.updateGUI();
 		}
 		
 		@Override
@@ -72,12 +72,6 @@ class TextEditor extends JTextArea implements Originator {
 				return;
 			}
 			restore(this);
-		}
-		
-		@Override
-		protected void onEnter() {
-			System.out.println(app.history());
-			app.displayTime();
 		}
 		
 		@Override
