@@ -3,15 +3,15 @@ package main;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.EventType;
+import javax.swing.event.DocumentListener;
 
-import ch.jacopoc.memento.History;
 import ch.jacopoc.memento.Memento;
 import ch.jacopoc.memento.Originator;
 
 class TextEditor extends JTextArea implements Originator {
 
 	private static final long serialVersionUID = 1L;
-	private final NotepadApp app;
+	private final DocumentListener listener;
 	private String prevState;
 	
 	/**
@@ -20,10 +20,10 @@ class TextEditor extends JTextArea implements Originator {
 	 * @param cols
 	 * @param listener
 	 */
-	public TextEditor(NotepadApp app) {
-		this.app = app;	
+	public TextEditor(DocumentListener listener) {
+		this.listener = listener;	
+		getDocument().addDocumentListener(listener);
 		prevState = "";
-		getDocument().addDocumentListener(app);
 	}
 	
 	/**
@@ -50,12 +50,6 @@ class TextEditor extends JTextArea implements Originator {
 			else if(type == EventType.REMOVE) {
 				delta = prevState.substring(e.getOffset(), e.getOffset() + e.getLength());
 			}
-			str = new StringBuilder(delta);
-		}
-		
-		@Override
-		protected void onAddToHistory(History history) {
-			app.updateGUI();
 		}
 		
 		@Override
@@ -91,8 +85,13 @@ class TextEditor extends JTextArea implements Originator {
 		}
 		
 		@Override
+		public String repr() {
+			return type != null ? ((type == EventType.INSERT ? "+" : "-") + delta.replaceAll("\n", "\\\\n")) : "0";
+		}
+		
+		@Override
 		public String toString() {
-			return (type == null ? "0" : ((type == EventType.INSERT ? "+" : "-") + delta.replaceAll("\n", "\\\\n"))) + (app.history().isCurrent(this) ? "<>" : "");
+			return type != null ? str.toString() : "";
 		}
 	}
 
@@ -111,8 +110,8 @@ class TextEditor extends JTextArea implements Originator {
 
 	@Override
 	public void restore(Memento memento) {
-		getDocument().removeDocumentListener(app);
-		setText(((TextEvent)memento).str.toString());
-		getDocument().addDocumentListener(app);
+		getDocument().removeDocumentListener(listener);
+		setText(memento.toString());
+		getDocument().addDocumentListener(listener);
 	}
 }

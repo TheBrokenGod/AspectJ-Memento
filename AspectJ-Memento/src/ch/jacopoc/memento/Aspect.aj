@@ -1,44 +1,48 @@
 package ch.jacopoc.memento;
 
-import java.util.HashMap;
+import java.lang.ref.WeakReference;
 import java.util.Map;
+import java.util.WeakHashMap;
 
-public aspect Aspect {
+public aspect Aspect perthis(fromCaretaker()) {
 	
-	private final Map<Originator, History> history = new HashMap<>();
-	private Originator current = null;
-
-	// Originator object created, create corresponding history
-	pointcut createHistoryForOriginator(Originator originator) : execution(Originator+.new(..)) && this(originator);
-	after(Originator originator) : createHistoryForOriginator(originator) {
-		history.put(activate(originator), new History(originator.createMemento()));
-	}
+	// TODO Memento -> Originator ???
+	final Map<Originator, History> history = new WeakHashMap<>();
+	WeakReference<Originator> active = new WeakReference<>(null);
 	
-	// Store the memento object returned to the caretaker
-	pointcut mementoReturnedToCaretaker(Originator originator) : call(Memento+ Originator+.*(..)) && target(originator) && within(Caretaker+);
-	after(Originator originator) returning(Memento m) : mementoReturnedToCaretaker(originator) {
-		history.get(activate(originator)).saveState(m);
-	}
+	// Only when called from within the Caretaker itself
+	pointcut fromCaretaker() : this(Caretaker+) && !within(Aspect);
 
-	// Activate a specific originator if more than one
-	void around(Originator originator) : call(void Caretaker.activate(Originator)) && args(originator) {
+	/**
+	 * Caretaker created an Originator object
+	 * Initialize corresponding history
+	 */
+	pointcut originatorCreated() : fromCaretaker() && call(Originator+.new(..));
+	after() returning (Originator originator) : originatorCreated() {
+		history.put(originator, new History(originator.createMemento()));
 		activate(originator);
 	}
 	
-	private Originator activate(Originator originator) {
-		current = originator;
-		return current;
+	/**
+	 * Originator returned a Memento object
+	 * Put into history
+	 */
+	pointcut mementoReturnedToCaretaker(Originator originator) : fromCaretaker() && call(Memento+ Originator+.*(..)) && target(originator);
+	after(Originator originator) returning(Memento m) : mementoReturnedToCaretaker(originator) {
+		history.get(originator).saveState(m);
+		activate(originator);
+	}
+
+	// Activate a specific originator if more than one
+	void around(Originator originator) : fromCaretaker() && call(void Caretaker.activate(Originator)) && args(originator) {
+		activate(originator);
 	}
 	
-	History around() : call(History Caretaker.history()) {
-		return history.get(current);
+	private void activate(Originator originator) {
+		active = new WeakReference<>(originator);
 	}
 	
-	void around() : call(void Caretaker+.moveBack()) {
-		history.get(current).moveBack();
-	}
-	
-	void around() : call(void Caretaker+.moveForward()) {
-		history.get(current).moveForward();
+	History around() : fromCaretaker() && call(History Caretaker.history()) {
+		return history.get(active.get());
 	}
 }

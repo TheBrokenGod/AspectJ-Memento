@@ -38,8 +38,8 @@ abstract public class MementoApp<T extends JComponent & Originator> extends JFra
 		setSize(800, 600);
 		setVisible(true);
 		// Memento
-		undo.addActionListener((e) -> {activate(editor); moveBack(); updateGUI();});
-		redo.addActionListener((e) -> {activate(editor); moveForward(); updateGUI();});
+		undo.addActionListener((e) -> undo());
+		redo.addActionListener((e) -> redo());
 	}
 	
 	protected void initGUI(String title, T editor) {
@@ -48,6 +48,14 @@ abstract public class MementoApp<T extends JComponent & Originator> extends JFra
 		add((JComponent)editor, BorderLayout.CENTER);
 		setTitle(title);
 		updateGUI();
+	}
+	
+	private void undo() {
+		activate(editor); history().moveBack(); updateGUI();
+	}
+	
+	private void redo() {
+		activate(editor); history().moveForward(); updateGUI();
 	}
 	
 	protected void updateGUI() {

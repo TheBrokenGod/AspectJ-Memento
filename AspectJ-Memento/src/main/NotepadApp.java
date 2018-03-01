@@ -24,5 +24,6 @@ public class NotepadApp extends MementoApp<TextEditor> implements DocumentListen
 	@Override
 	public void changedUpdate(DocumentEvent e) {
 		editor.createMemento(e);
+		updateGUI();
 	}
 }

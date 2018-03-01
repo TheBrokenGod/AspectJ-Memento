@@ -1,7 +1,6 @@
 package ch.jacopoc.memento;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -124,6 +123,10 @@ public class History {
 	
 	@Override
 	public String toString() {
-		return "{History} " + Arrays.deepToString(savedStates.toArray());
+		StringBuilder str = new StringBuilder("{History:" + hashCode() + "} [");
+		for(Memento state : savedStates) {
+			str.append(state.repr()).append(state == current() ? "<>" : "").append(", ");
+		}
+		return str.replace(str.length()-2, str.length(), "").append(']').toString();
 	}
 }

@@ -20,4 +20,7 @@ public class Memento {
 	}
 	protected void onExitToNext() {
 	}
+	protected String repr() {
+		return toString();
+	}
 }
