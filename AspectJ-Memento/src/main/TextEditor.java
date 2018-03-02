@@ -1,5 +1,6 @@
 package main;
 
+import javax.swing.BorderFactory;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.EventType;
@@ -8,7 +9,7 @@ import javax.swing.event.DocumentListener;
 import ch.jacopoc.memento.Memento;
 import ch.jacopoc.memento.Originator;
 
-class TextEditor extends JTextArea implements Originator {
+class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 
 	private static final long serialVersionUID = 1L;
 	private final DocumentListener listener;
@@ -21,9 +22,10 @@ class TextEditor extends JTextArea implements Originator {
 	 * @param listener
 	 */
 	public TextEditor(DocumentListener listener) {
-		this.listener = listener;	
+		this.listener = listener;
 		getDocument().addDocumentListener(listener);
 		prevState = "";
+		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 	}
 	
 	/**
@@ -54,44 +56,35 @@ class TextEditor extends JTextArea implements Originator {
 		
 		@Override
 		protected void onExitToPrevious() {
+			str = new StringBuilder(getText());
 			// Remove inserted character
 			if(type == EventType.INSERT) {
-				str = new StringBuilder(getText());
 				str.delete(offset, offset + delta.length());
 			}
 			// Undo character removal
 			else if(type == EventType.REMOVE) {
-			}
-			else {
-				return;
+				str.insert(offset, delta);
 			}
 			restore(this);
 		}
 		
 		@Override
 		protected void onEnterFromPrevious() {
-			// Re-insert character
+			str = new StringBuilder(getText());
 			if(type == EventType.INSERT) {
-				str = new StringBuilder(getText());
+				// Re-insert character
 				str.insert(offset, delta);
 			}
-			// Perform remove again
 			else if(type == EventType.REMOVE) {
-			}
-			else {
-				return;
+				// Perform remove again
+				str.delete(offset, offset + delta.length());
 			}
 			restore(this);
 		}
 		
 		@Override
-		public String repr() {
-			return type != null ? ((type == EventType.INSERT ? "+" : "-") + delta.replaceAll("\n", "\\\\n")) : "0";
-		}
-		
-		@Override
 		public String toString() {
-			return type != null ? str.toString() : "";
+			return type != null ? ((type == EventType.INSERT ? "+" : "-") + delta.replaceAll("\n", "\\\\n")).replaceAll(" ", "\\\\s") : "0";
 		}
 	}
 
@@ -109,9 +102,10 @@ class TextEditor extends JTextArea implements Originator {
 	}
 
 	@Override
-	public void restore(Memento memento) {
+	public void restore(TextEvent memento) {
 		getDocument().removeDocumentListener(listener);
-		setText(memento.toString());
+		setText(memento.str.toString());
+		memento.str = null;
 		getDocument().addDocumentListener(listener);
 	}
 }

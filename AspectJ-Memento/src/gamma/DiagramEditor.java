@@ -15,7 +15,7 @@ import ch.jacopoc.memento.Memento;
 import ch.jacopoc.memento.Originator;
 import gamma.ConstraintSolver.Constraint;
 
-public class DiagramEditor extends JPanel implements Originator {
+public class DiagramEditor extends JPanel implements Originator<DiagramEditor.Command> {
 	
 	static private final long serialVersionUID = 1L;
 	

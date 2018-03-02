@@ -2,26 +2,25 @@ package main;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.time.format.DateTimeFormatter;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import ch.jacopoc.memento.Caretaker;
-import ch.jacopoc.memento.Originator;
 
-abstract public class MementoApp<T extends JComponent & Originator> extends JFrame implements Caretaker {
+abstract public class MementoApp extends JFrame implements Caretaker, WindowListener {
 	
 	private static final long serialVersionUID = 1L;
+	private static final DateTimeFormatter DTFORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 	private final JPanel toolbar;
 	private final JButton undo;
 	private final JButton redo;
 	private final JLabel time;
-	protected T editor = null;
 	
 	protected MementoApp() {
 		// Base GUI
@@ -34,34 +33,52 @@ abstract public class MementoApp<T extends JComponent & Originator> extends JFra
 		toolbar.add(redo);
 		toolbar.add(time);
 		add(toolbar, BorderLayout.NORTH);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		addWindowListener(this);
 		setSize(800, 600);
 		setVisible(true);
 		// Memento
-		undo.addActionListener((e) -> undo());
-		redo.addActionListener((e) -> redo());
-	}
-	
-	protected void initGUI(String title, T editor) {
-		this.editor = editor;
-		editor.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		add((JComponent)editor, BorderLayout.CENTER);
-		setTitle(title);
+		undo.addActionListener((e) -> {history().moveBack(); updateGUI();});
+		redo.addActionListener((e) -> {history().moveForward(); updateGUI();});
+		initGUI();
 		updateGUI();
 	}
 	
-	private void undo() {
-		activate(editor); history().moveBack(); updateGUI();
-	}
-	
-	private void redo() {
-		activate(editor); history().moveForward(); updateGUI();
-	}
+	abstract protected void initGUI();
 	
 	protected void updateGUI() {
-		time.setText(DateTimeFormatter.ofPattern("HH:mm:ss:S").format(history().current().created));
+		time.setText("History time: " + DTFORMATTER.format(history().current().created));
 		undo.setEnabled(history().hasPrevious());
 		redo.setEnabled(history().hasNext());
 		System.out.println(history());
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+		dispose();
+	}
+	
+	@Override
+	public void windowActivated(WindowEvent e) {
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {	
 	}
 }

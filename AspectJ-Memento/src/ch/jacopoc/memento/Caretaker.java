@@ -8,7 +8,7 @@ public interface Caretaker {
 	 * 
 	 * @param orig
 	 */
-	default void activate(Originator orig) {
+	default void activate(Originator<?> orig) {
 		throw new IllegalAccessError(ERROR);
 	}
 	
@@ -18,5 +18,13 @@ public interface Caretaker {
 	 */
 	default History history() {
 		throw new IllegalAccessError(ERROR);
+	}
+	
+	/**
+	 * 
+	 * @param orig
+	 */
+	default void dispose(Originator<?> orig) {
+		throw new IllegalAccessError(ERROR);		
 	}
 }

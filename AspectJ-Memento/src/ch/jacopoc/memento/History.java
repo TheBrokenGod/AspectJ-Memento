@@ -17,7 +17,7 @@ public class History {
 	 * 
 	 * @param emptyState
 	 */
-	public History(Memento initialState) {
+	History(Memento initialState) {
 		savedStates = new ArrayList<>();
 		savedStates.add(initialState);
 		currentState = 0;
@@ -125,7 +125,7 @@ public class History {
 	public String toString() {
 		StringBuilder str = new StringBuilder("{History:" + hashCode() + "} [");
 		for(Memento state : savedStates) {
-			str.append(state.repr()).append(state == current() ? "<>" : "").append(", ");
+			str.append(state).append(state == current() ? "<>" : "").append(", ");
 		}
 		return str.replace(str.length()-2, str.length(), "").append(']').toString();
 	}
