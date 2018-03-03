@@ -17,21 +17,27 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 	
 	/**
 	 * 
+	 * @param listener
+	 */
+	public TextEditor(DocumentListener listener) {
+		this(listener, "");
+	}
+	
+	/**
+	 * 
 	 * @param rows
 	 * @param cols
 	 * @param listener
 	 */
-	public TextEditor(DocumentListener listener) {
+	public TextEditor(DocumentListener listener, String initialContent) {
+		super(initialContent);
 		this.listener = listener;
 		getDocument().addDocumentListener(listener);
 		prevState = "";
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 	}
 	
-	/**
-	 * 
-	 *
-	 */
+	// Holds the text delta between states
 	public class TextEvent extends Memento {
 
 		private final EventType type;
@@ -46,22 +52,16 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 			}
 			type = e.getType();
 			offset = e.getOffset();
-			if(type == EventType.INSERT) {
-				delta = getText().substring(e.getOffset(), e.getOffset() + e.getLength());
-			}
-			else if(type == EventType.REMOVE) {
-				delta = prevState.substring(e.getOffset(), e.getOffset() + e.getLength());
-			}
+			delta = (type == EventType.REMOVE ? prevState : getText()).substring(offset, offset + e.getLength());
 		}
 		
 		@Override
 		protected void onExitToPrevious() {
+			// Undo event
 			str = new StringBuilder(getText());
-			// Remove inserted character
 			if(type == EventType.INSERT) {
 				str.delete(offset, offset + delta.length());
 			}
-			// Undo character removal
 			else if(type == EventType.REMOVE) {
 				str.insert(offset, delta);
 			}
@@ -70,13 +70,12 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 		
 		@Override
 		protected void onEnterFromPrevious() {
+			// Redo event
 			str = new StringBuilder(getText());
 			if(type == EventType.INSERT) {
-				// Re-insert character
 				str.insert(offset, delta);
 			}
 			else if(type == EventType.REMOVE) {
-				// Perform remove again
 				str.delete(offset, offset + delta.length());
 			}
 			restore(this);
@@ -84,20 +83,17 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 		
 		@Override
 		public String toString() {
-			return type != null ? ((type == EventType.INSERT ? "+" : "-") + delta.replaceAll("\n", "\\\\n")).replaceAll(" ", "\\\\s") : "0";
+			return type != null ? ((type == EventType.INSERT ? "+" : "-") + delta.replaceAll("\n", "<br/>")).replaceAll(" ", "&nbsp").replaceAll("\t", "&#9;") : "0";
 		}
 	}
 
 	@Override
 	public TextEvent createMemento(Object... args) {
 		try {
-			return new TextEvent((DocumentEvent)args[0]);
-		}
-		catch(ArrayIndexOutOfBoundsException e) {
-			return new TextEvent(null);
+			return new TextEvent(args[0] instanceof DocumentEvent ? (DocumentEvent)args[0] : null);
 		}
 		finally {
-			prevState = getText();
+			prevState = getText();			
 		}
 	}
 

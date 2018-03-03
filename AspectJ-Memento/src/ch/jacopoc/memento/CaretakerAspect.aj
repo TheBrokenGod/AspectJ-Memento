@@ -1,61 +1,32 @@
 package ch.jacopoc.memento;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.ref.WeakReference;
 
-@SuppressWarnings("rawtypes") 
 public aspect CaretakerAspect perthis(caretaker()) {
 	
-	private final Map<Originator, History> histories = new HashMap<>();
-	private Originator active = null;
-	
-	/**
-	 *  Every Caretaker will have its instance of CaretakerAspect
-	 */
-	pointcut caretaker() : this(Caretaker+) && !within(CaretakerAspect);
-
-	/**
-	 * Caretaker created an Originator object -> Initialize corresponding history
-	 */
+	pointcut caretaker() : this(Caretaker+);
 	pointcut originatorCreated() : caretaker() && call(Originator+.new(..));
-	after() returning (Originator originator) : originatorCreated() {
-		histories.put(originator, new History(originator.createMemento()));
-		activate(originator);
+	
+	private WeakReference<Originator<?>> active = new WeakReference<>(null);
+	
+	/**
+	 * Activate the latest built originator
+	 */
+	after() returning (Originator<?> originator) : originatorCreated() {
+		active = new WeakReference<>(originator);
 	}
 	
 	/**
-	 * Originator returned a Memento object to the Caretaker -> Put into history
+	 * Activate a particular object in a multi-originator environment
 	 */
-	pointcut mementoReturnedToCaretaker(Originator originator) : caretaker() && call(Memento+ Originator+.*(..)) && target(originator);
-	after(Originator originator) returning(Memento m) : mementoReturnedToCaretaker(originator) {
-		histories.get(originator).saveState(m);
-		activate(originator);
-	}
-
-	/**
-	 * If more than one Originator set the specified one as active
-	 */
-	void around(Originator originator) : caretaker() && call(void Caretaker.activate(Originator)) && args(originator) {
-		activate(originator);
-	}
-	
-	private void activate(Originator originator) {
-		active = originator;
+	void around(Originator<?> originator) : caretaker() && execution(void Caretaker.activate(Originator)) && args(originator) {
+		active = new WeakReference<>(originator);
 	}
 	
 	/**
-	 * Return the History associated to the currently active Originator
+	 * Fetch active originator's history
 	 */
-	History around() : caretaker() && call(History Caretaker.history()) {
-		return histories.get(active);
-	}
-	
-	/**
-	 * The given Originator has been disposed -> Delete the associated History
-	 */
-	void around(Originator originator) : caretaker() && call(void Caretaker.dispose(Originator)) && args(originator) {
-		histories.remove(originator);
-		if(active == originator)
-			active = null;
+	History around() : caretaker() && execution(History Caretaker.history()) {
+		return active.get().history();
 	}
 }

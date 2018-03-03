@@ -27,13 +27,13 @@ public class NotepadApp extends MementoApp implements DocumentListener {
 		tabs.add("Main.java", new JScrollPane(editors.get(1)));
 		tabs.add("log_0.txt", new JScrollPane(editors.get(2)));
 		add(tabs, BorderLayout.CENTER);
-		tabs.setSelectedIndex(0);
-		tabChanged();
+		activate(editors.get(0));
 		tabs.addChangeListener((e) -> tabChanged());
 	}
 	
 	private void tabChanged() {
-		activate(editors.get(tabs.getSelectedIndex()));
+		int temp = tabs.getSelectedIndex();
+		activate(editors.get(temp));
 		updateGUI();
 	}
 	
@@ -55,14 +55,14 @@ public class NotepadApp extends MementoApp implements DocumentListener {
 	
 	@Override
 	public void windowClosing(WindowEvent e) {
-		// Last tab closed
+		// Last closed
 		if(editors.size() == 1) {
 			super.windowClosing(e);
 			return;
 		}
-		// Remove tab and history
+		// Close active tab
 		int selected = tabs.getSelectedIndex();
+		editors.remove(selected);
 		tabs.removeTabAt(selected);
-		dispose(editors.remove(selected));
 	}
 }

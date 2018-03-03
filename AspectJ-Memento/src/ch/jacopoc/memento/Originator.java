@@ -18,4 +18,12 @@ public interface Originator<T extends Memento> {
 	 */
 	default public void restore(T memento) {
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	default public History history() {
+		return null;
+	}
 }
