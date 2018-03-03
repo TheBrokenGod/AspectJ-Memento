@@ -1,4 +1,6 @@
-package main;
+package notepad;
+
+import java.awt.Font;
 
 import javax.swing.BorderFactory;
 import javax.swing.JTextArea;
@@ -24,8 +26,10 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 		super(initialContent);
 		this.listener = listener;
 		getDocument().addDocumentListener(listener);
-		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		prevState = "";
+		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+		setTabSize(4);
 	}
 	
 	// Holds the text delta between states
@@ -85,7 +89,7 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 		
 		@Override
 		public String toString() {
-			return type != null ? ((type == EventType.INSERT ? "+" : "-") + delta.replaceAll("\n", "<br/>")).replaceAll(" ", "&nbsp").replaceAll("\t", "&#9;") : "0";
+			return (type == EventType.INSERT ? "+" : "-") + "'" + delta.replaceAll("\n", "<br/>").replaceAll(" ", "&nbsp").replaceAll("\t", "&#9;") + "'";
 		}
 	}
 

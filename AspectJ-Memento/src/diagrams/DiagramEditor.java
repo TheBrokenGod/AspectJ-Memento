@@ -1,4 +1,4 @@
-package gamma;
+package diagrams;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 import ch.jacopoc.memento.History;
 import ch.jacopoc.memento.Memento;
 import ch.jacopoc.memento.Originator;
-import gamma.ConstraintSolver.Constraint;
+import diagrams.ConstraintSolver.Constraint;
 
 public class DiagramEditor extends JPanel implements Originator<DiagramEditor.Command> {
 	

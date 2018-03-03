@@ -1,15 +1,17 @@
-package gamma;
+package diagrams;
 
 import java.awt.BorderLayout;
 
-import main.MementoApp;
+import main.UndoRedoApp;
 
-public class DiagramApp extends MementoApp {
+public class DiagramApp extends UndoRedoApp {
 
 	private static final long serialVersionUID = 1L;
 	private DiagramEditor editor;
 
 	protected void initGUI() {
+		setTitle("Diagrams (Gamma)");
+		setBounds(100, 100, getWidth(), getHeight());
 		editor = new DiagramEditor();
 		add(editor, BorderLayout.CENTER);
 		// Perform some commands

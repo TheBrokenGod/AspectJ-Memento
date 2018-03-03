@@ -39,10 +39,6 @@ public class History {
 		return savedStates.get(currentState);
 	}
 	
-	public boolean isCurrent(Memento state) {
-		return state == current();
-	}
-	
 	/**
 	 * 
 	 * @return
@@ -55,15 +51,7 @@ public class History {
 	 * 
 	 * @return
 	 */
-	public Memento previous() {
-		return savedStates.get(--currentState);
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public boolean moveBack() {
+	public boolean undo() {
 		if(!hasPrevious()) {
 			return false;
 		}
@@ -87,15 +75,16 @@ public class History {
 	 * 
 	 * @return
 	 */
-	public Memento next() {
-		return savedStates.get(++currentState);
+	public boolean redo() {
+		return redo(0);
 	}
-	
+
 	/**
 	 * 
+	 * @param branch
 	 * @return
 	 */
-	public boolean moveForward() {
+	public boolean redo(int branch) {
 		if(!hasNext()) {
 			return false;
 		}
@@ -104,7 +93,7 @@ public class History {
 		currentState += 1;
 		current().onEnter();
 		current().onEnterFromPrevious();
-		return true;
+		return true;		
 	}
 	
 	/**

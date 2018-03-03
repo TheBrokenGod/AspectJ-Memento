@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 
 import ch.jacopoc.memento.Caretaker;
 
-abstract public class MementoApp extends JFrame implements Caretaker, WindowListener {
+abstract public class UndoRedoApp extends JFrame implements Caretaker, WindowListener {
 	
 	private static final long serialVersionUID = 1L;
 	private static final DateTimeFormatter DTFORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -22,10 +22,10 @@ abstract public class MementoApp extends JFrame implements Caretaker, WindowList
 	private final JButton redo;
 	private final JLabel time;
 	
-	protected MementoApp() {
+	protected UndoRedoApp() {
 		// Base GUI
 		setLayout(new BorderLayout());
-		toolbar = new JPanel(new FlowLayout());
+		toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		undo = new JButton("Undo (CTRL+Z)");
 		redo = new JButton("Redo (CTRL+Y)");
 		time = new JLabel();
@@ -38,8 +38,8 @@ abstract public class MementoApp extends JFrame implements Caretaker, WindowList
 		setSize(800, 600);
 		setVisible(true);
 		// Memento
-		undo.addActionListener((e) -> {history().moveBack(); updateGUI();});
-		redo.addActionListener((e) -> {history().moveForward(); updateGUI();});
+		undo.addActionListener((e) -> {history().undo(); updateGUI();});
+		redo.addActionListener((e) -> {history().redo(); updateGUI();});
 		initGUI();
 		updateGUI();
 	}

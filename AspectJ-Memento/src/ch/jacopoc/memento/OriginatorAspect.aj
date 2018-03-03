@@ -5,7 +5,7 @@ public aspect OriginatorAspect perthis(originator()) {
 
 	pointcut originator() : this(Originator+);
 	pointcut newInstance(Originator self) : originator() && this(self) && execution(Originator+.new(..));
-	pointcut mementoReturned(Originator self) : originator() && this(self) && execution(Memento+ Originator+.*(..)) && !cflow(within(OriginatorAspect));
+	pointcut mementoReturned(Originator self) : originator() && this(self) && execution(public Memento+ Originator+.*(..)) && !cflow(within(OriginatorAspect));
 	
 	private History history = null;
 	

@@ -1,4 +1,4 @@
-package gamma;
+package diagrams;
 
 import java.awt.Point;
 
