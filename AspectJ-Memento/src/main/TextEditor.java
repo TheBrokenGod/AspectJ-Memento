@@ -14,47 +14,40 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 	private static final long serialVersionUID = 1L;
 	private final DocumentListener listener;
 	private String prevState;
-	
+
 	/**
 	 * 
 	 * @param listener
-	 */
-	public TextEditor(DocumentListener listener) {
-		this(listener, "");
-	}
-	
-	/**
-	 * 
-	 * @param rows
-	 * @param cols
-	 * @param listener
+	 * @param initialContent
 	 */
 	public TextEditor(DocumentListener listener, String initialContent) {
 		super(initialContent);
 		this.listener = listener;
 		getDocument().addDocumentListener(listener);
-		prevState = "";
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		prevState = "";
 	}
 	
 	// Holds the text delta between states
 	public class TextEvent extends Memento {
 
 		private final EventType type;
-		private String delta;
-		private int offset;
+		private final int offset;
+		private final String delta;
 		private StringBuilder str;
+
+		TextEvent(String initialContent) {
+			type = EventType.INSERT;
+			offset = 0;
+			delta = initialContent;
+		}
 		
-		private TextEvent(DocumentEvent e) {
-			if(e == null) {
-				type = null;
-				return;
-			}
+		TextEvent(DocumentEvent e) {
 			type = e.getType();
 			offset = e.getOffset();
 			delta = (type == EventType.REMOVE ? prevState : getText()).substring(offset, offset + e.getLength());
 		}
-		
+
 		@Override
 		protected void onExitToPrevious() {
 			// Undo event
@@ -81,6 +74,15 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 			restore(this);
 		}
 		
+		private String getString() {
+			try {
+				return str.toString();
+			}
+			finally {
+				str = null;
+			}
+		}
+		
 		@Override
 		public String toString() {
 			return type != null ? ((type == EventType.INSERT ? "+" : "-") + delta.replaceAll("\n", "<br/>")).replaceAll(" ", "&nbsp").replaceAll("\t", "&#9;") : "0";
@@ -90,18 +92,17 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 	@Override
 	public TextEvent createMemento(Object... args) {
 		try {
-			return new TextEvent(args[0] instanceof DocumentEvent ? (DocumentEvent)args[0] : null);
+			return args[0] instanceof DocumentEvent ? new TextEvent((DocumentEvent)args[0]) : new TextEvent(args.length > 1 ? (String)args[1] : "");
 		}
 		finally {
-			prevState = getText();			
+			prevState = getText();
 		}
 	}
 
 	@Override
 	public void restore(TextEvent memento) {
 		getDocument().removeDocumentListener(listener);
-		setText(memento.str.toString());
-		memento.str = null;
+		setText(memento.getString());
 		getDocument().addDocumentListener(listener);
 	}
 }

@@ -22,12 +22,17 @@ public class NotepadApp extends MementoApp implements DocumentListener {
 		setTitle("Swing Notepad");
 		tabs = new JTabbedPane();
 		editors = new ArrayList<>();
-		editors.addAll(Arrays.asList(new TextEditor(this), new TextEditor(this), new TextEditor(this)));
+		editors.addAll(Arrays.asList(
+			new TextEditor(this, "print('OK')"), 
+			new TextEditor(this, ""), 
+			new TextEditor(this, "saved log entry")
+		));
 		tabs.add("script.py", new JScrollPane(editors.get(0)));
 		tabs.add("Main.java", new JScrollPane(editors.get(1)));
 		tabs.add("log_0.txt", new JScrollPane(editors.get(2)));
 		add(tabs, BorderLayout.CENTER);
-		activate(editors.get(0));
+		tabs.setSelectedIndex(1);
+		activate(editors.get(1));
 		tabs.addChangeListener((e) -> tabChanged());
 	}
 	
