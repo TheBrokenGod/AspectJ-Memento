@@ -26,7 +26,7 @@ public aspect OriginatorAspect perthis(originator()) {
 	/**
 	 * Return history
 	 */
-	History around() : originator() && execution(History Originator+.history()) {
+	History around() : originator() && execution(History Originator+.history()) && cflow(within(CaretakerAspect)) {
 		return history;
 	}
 }

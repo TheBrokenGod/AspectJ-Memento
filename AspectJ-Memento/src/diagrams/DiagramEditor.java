@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JPanel;
 
-import ch.jacopoc.memento.History;
 import ch.jacopoc.memento.Memento;
 import ch.jacopoc.memento.Originator;
 import diagrams.ConstraintSolver.Constraint;
@@ -32,7 +31,7 @@ public class DiagramEditor extends JPanel implements Originator<DiagramEditor.Co
 	abstract class Command extends Memento {
 		
 		@Override
-		protected void onAddToHistory(History history) {
+		protected void onAddToHistory() {
 			onEnterFromPrevious();
 		}
 		
