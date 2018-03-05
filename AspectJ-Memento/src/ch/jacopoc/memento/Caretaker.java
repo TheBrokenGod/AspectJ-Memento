@@ -1,18 +1,16 @@
 package ch.jacopoc.memento;
 
 /**
- * This interface represents a Caretaker which creates, handles and destroys Originator objects.
- * 
- * It should simply be implemented without overriding any method, because they are already backed by CaretakerAspect.
+ * The Caretaker creates and manipulates Originator object(s).
  */
 public interface Caretaker {
 	
 	/**
-	 * In a multi-originator environment (e.g. a multitab text editor) activate the specified originator object and its history.
+	 * In a multi-originator environment activates the specified object and the associated history.
 	 * 
-	 * An originator must be the active one when a memento is created, otherwise the behaviour is undefined. 
+	 * There is no need to call this method if there is a single originator: the last built originator automatically becomes active.
 	 * 
-	 * There is no need to call this method if there is a single originator: the last built originator object is automatically activated.
+	 * An originator must be active when a Memento is created.
 	 * 
 	 * @param orig The originator to activate
 	 */
@@ -20,9 +18,9 @@ public interface Caretaker {
 	}
 	
 	/**
-	 * This is a private method, use Caretaker.history() instead.
+	 * Returns the history associated to the active Originator.
 	 * 
-	 * @return
+	 * @return Active history
 	 */
 	default History history() {
 		return null;

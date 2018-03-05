@@ -5,19 +5,17 @@ import java.lang.ref.WeakReference;
 public aspect CaretakerAspect perthis(caretaker()) {
 	
 	pointcut caretaker() : this(Caretaker+);
-	pointcut originatorCreated() : caretaker() && call(Originator+.new(..));
-	
 	private WeakReference<Originator<?>> active = new WeakReference<>(null);
 	
 	/**
-	 * Activate the latest built originator
+	 * Activate the built originator
 	 */
-	after() returning (Originator<?> originator) : originatorCreated() {
+	after() returning (Originator<?> originator) : caretaker() && call(Originator+.new(..)) {
 		active = new WeakReference<>(originator);
 	}
 	
 	/**
-	 * Activate a particular object in a multi-originator environment
+	 * Activate a particular originator
 	 */
 	void around(Originator<?> originator) : caretaker() && execution(void Caretaker.activate(Originator)) && args(originator) {
 		active = new WeakReference<>(originator);

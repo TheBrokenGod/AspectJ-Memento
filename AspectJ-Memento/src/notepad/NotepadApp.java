@@ -25,6 +25,7 @@ public class NotepadApp extends UndoRedoApp implements DocumentListener {
 		setBounds(300, 200, getWidth(), getHeight());
 		tabs = new JTabbedPane();
 		editors = new ArrayList<>();
+		// Init with some content
 		editors.addAll(Arrays.asList(
 			new TextEditor(this, ""), 
 			new TextEditor(this, "public class MainClass {\n\n\tpublic static void main(String[] args) {\n\t\t// TODO\n\t}\n}"), 
@@ -34,6 +35,7 @@ public class NotepadApp extends UndoRedoApp implements DocumentListener {
 		tabs.add("Main.java", new JScrollPane(editors.get(1)));
 		tabs.add("script.py", new JScrollPane(editors.get(2)));
 		add(tabs, BorderLayout.CENTER);
+		// Activate first tab
 		tabs.setSelectedIndex(0);
 		activate(editors.get(0));
 		tabs.addChangeListener((e) -> tabChanged());
@@ -57,18 +59,19 @@ public class NotepadApp extends UndoRedoApp implements DocumentListener {
 	
 	@Override
 	public void changedUpdate(DocumentEvent e) {
+		// The returned Memento is intercepted and added to history by the aspect
 		editors.get(tabs.getSelectedIndex()).createMemento(e);
 		updateGUI();
 	}
 	
 	@Override
 	public void windowClosing(WindowEvent e) {
-		// Last closed
+		// Last tab closed
 		if(editors.size() == 1) {
 			super.windowClosing(e);
 			return;
 		}
-		// Close active tab
+		// Close currently active tab
 		int selected = tabs.getSelectedIndex();
 		editors.remove(selected);
 		tabs.removeTabAt(selected);

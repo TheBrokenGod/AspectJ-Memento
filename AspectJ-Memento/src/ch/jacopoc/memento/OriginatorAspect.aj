@@ -4,27 +4,24 @@ package ch.jacopoc.memento;
 public aspect OriginatorAspect perthis(originator()) {
 
 	pointcut originator() : this(Originator+);
-	pointcut newInstance(Originator self) : originator() && this(self) && execution(Originator+.new(..));
-	pointcut mementoReturned(Originator self) : originator() && this(self) && execution(public Memento+ Originator+.*(..)) && !cflow(within(OriginatorAspect));
-	
 	private History history = null;
 	
 	/**
 	 * Initialize history for the new originator
 	 */
-	after(Originator self) : newInstance(self) {
+	after(Originator self) : originator() && this(self) && execution(Originator+.new(..)) {
 		history = new History(self.createMemento(thisJoinPoint.getArgs()));
 	}
 	
 	/**
-	 * Store the returned memento into history
+	 * Store a returned memento into history
 	 */
-	after(Originator self) returning(Memento m) : mementoReturned(self) {
+	after(Originator self) returning(Memento m) : originator() && this(self) && execution(public Memento+ Originator+.*(..)) && !cflow(within(OriginatorAspect)) {
 		history.saveState(m);
 	}
 	
 	/**
-	 * Return history
+	 * Return originator's history
 	 */
 	History around() : originator() && execution(History Originator+.history()) && cflow(within(CaretakerAspect)) {
 		return history;

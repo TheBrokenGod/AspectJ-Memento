@@ -27,6 +27,7 @@ class ConstraintSolver  {
 	final List<Constraint> constraints = new ArrayList<>();
 	
 	void solve() {
+		// Calc center-to-center connection line
 		constraints.stream().filter(c -> c.solution == null).forEach(c -> {
 			c.solution = new Point[] {
 				new Point(c.startConnection.position.x + c.startConnection.radius, c.startConnection.position.y + c.startConnection.radius),
@@ -44,6 +45,7 @@ class ConstraintSolver  {
 	}
 	
 	void recomputeConstraints(Graphic movedGraphic) {
+		// Invalid contrainsts involving the moved graphic
 		constraints.stream().filter(c -> c.startConnection == movedGraphic || c.endConnection == movedGraphic).forEach(c -> c.solution = null);
 	}
 }

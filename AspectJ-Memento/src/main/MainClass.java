@@ -7,7 +7,7 @@ import treetest.TreeHistoryTest;
 public class MainClass {
 	
 	public static void main(String[] args) {
-		new TreeHistoryTest().run();
+		new TreeHistoryTest();
 		new DiagramApp();
 		new NotepadApp();
 	}

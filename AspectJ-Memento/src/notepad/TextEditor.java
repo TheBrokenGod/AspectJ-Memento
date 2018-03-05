@@ -54,11 +54,12 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 
 		@Override
 		protected void onExitToPrevious() {
-			// Undo event
 			str = new StringBuilder(getText());
+			// Undo text insertion
 			if(type == EventType.INSERT) {
 				str.delete(offset, offset + delta.length());
 			}
+			// Undo text removal
 			else if(type == EventType.REMOVE) {
 				str.insert(offset, delta);
 			}
@@ -67,11 +68,12 @@ class TextEditor extends JTextArea implements Originator<TextEditor.TextEvent> {
 		
 		@Override
 		protected void onEnterFromPrevious() {
-			// Redo event
 			str = new StringBuilder(getText());
+			// Redo text insertion
 			if(type == EventType.INSERT) {
 				str.insert(offset, delta);
 			}
+			// Redo text removal
 			else if(type == EventType.REMOVE) {
 				str.delete(offset, offset + delta.length());
 			}

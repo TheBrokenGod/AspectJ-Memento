@@ -27,7 +27,8 @@ public class DiagramEditor extends JPanel implements Originator<DiagramEditor.Co
 		setOpaque(true);
 		setBackground(Color.WHITE);
 	}
-	
+
+	// Command subclasses are private and constructed by public command (factory) methods
 	abstract class Command extends Memento {
 		
 		@Override
@@ -57,7 +58,8 @@ public class DiagramEditor extends JPanel implements Originator<DiagramEditor.Co
 			return getClass().getSimpleName();
 		}
 	}
-	
+
+	// Initial state
 	private class EmptyCommand extends Command {
 		@Override
 		protected void execute() {
@@ -76,6 +78,7 @@ public class DiagramEditor extends JPanel implements Originator<DiagramEditor.Co
 		return emptyCommand();
 	}
 
+	// Add new graphic to editing area
 	private class AddGraphic extends Command {
 		
 		final Graphic graphic;
@@ -103,6 +106,7 @@ public class DiagramEditor extends JPanel implements Originator<DiagramEditor.Co
 		return graphics.get(name);
 	}
 	
+	// Move existing graphic
 	private class MoveGraphic extends Command {
 		
 		final Graphic graphic;
@@ -130,6 +134,7 @@ public class DiagramEditor extends JPanel implements Originator<DiagramEditor.Co
 		return new MoveGraphic(graphics.get(name), new Point(dx, dy));
 	}
 	
+	// Connect existing graphics
 	private class AddConstraint extends Command {
 		
 		final Graphic startConnection;

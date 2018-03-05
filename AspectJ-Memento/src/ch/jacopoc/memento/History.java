@@ -1,117 +1,117 @@
 package ch.jacopoc.memento;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * This class represents an ordered list of consecutive states which is possible to traverse in both directions.
+ * Holds the states produced by a specific Originator instance. 
+ * 
+ * It is possible to orderly traverse it in both directions and branching is supported too.
  */
 public class History {
 
-	private List<Memento> savedStates;
-	private int currentState;
+	private Memento currentState;
 	
 	History(Memento initialState) {
-		savedStates = new ArrayList<>();
-		savedStates.add(initialState);
-		currentState = 0;
+		initialState.previous = null;
+		currentState = initialState;
 	}
 	
 	/**
-	 * Return the total number of saved states.
-	 * 
-	 * @return The number of saved states.
-	 */
-	public int size() {
-		return savedStates.size();
-	}
-	
-	/**
-	 * Return the state at current cursor position.
+	 * Returns the state at current cursor position.
 	 * 
 	 * @return The current state.
 	 */
 	public Memento current() {
-		return savedStates.get(currentState);
+		return currentState;
 	}
 	
 	/**
-	 * Check if there is a previous state.
+	 * Checks if there is a previous state.
 	 * 
-	 * @return true if there is a previous state, false otherwise.
+	 * @return True if there is a previous state, false otherwise.
 	 */
 	public boolean hasPrevious() {
-		return currentState > 0;
+		return currentState.previous != null;
 	}
 	
 	/**
-	 * Move to the previous state, activating the proper triggers on the current and the previous memento object.
-	 * 
-	 * @return true if there is a previous state, false otherwise.
+	 * Moves to the previous state, executing the relevant triggers on the current and previous Memento.
 	 */
-	public boolean undo() {
-		if(!hasPrevious()) {
-			return false;
-		}
-		current().onExit();
-		current().onExitToPrevious();
-		currentState -= 1;
-		current().onEnter();
-		current().onEnterFromNext();
-		return true;
+	public void undo() {
+		currentState.onExit();
+		currentState.onExitToPrevious();
+		currentState = currentState.previous;
+		currentState.onEnter();
+		currentState.onEnterFromNext();
 	}
 	
 	/**
-	 * Check if there is a next state.
+	 * Checks if there is at least one next state (branch).
 	 * 
-	 * @return true if there is a next state, false otherwise.
+	 * @return True if there is a next state, false otherwise.
 	 */
 	public boolean hasNext() {
-		return currentState <= savedStates.size() - 2;
+		return currentState.next.size() > 0;
 	}
 	
 	/**
-	 * Move to the next state, activating the proper triggers on the current and the next memento object.
+	 * Checks if the given outgoing branch exists. 
 	 * 
-	 * @return true if there is a next state, false otherwise.
+	 * @param branch Index of the branch
+	 * 
+	 * @return True if the given branch exists, false otherwise.
 	 */
-	public boolean redo() {
-		return redo(0);
+	public boolean hasNext(int branch) {
+		return false;
+	}
+	
+	/**
+	 * Moves to the next state, executing the relevant triggers on the current and next Memento.
+	 */
+	public void redo() {
+		redo(currentState.next.size() - 1);
 	}
 
 	/**
-	 * Move to the next state on the given branch, activating the proper triggers on the current and the next memento object.
+	 * Moves to the next state on the given branch, executing the relevant triggers on the current and next Memento.
 	 * 
-	 * @return true if there is a next state on the given branch, false otherwise.
+	 * @param branch Index of the branch
 	 */
-	public boolean redo(int branch) {
-		if(!hasNext()) {
-			return false;
-		}
-		current().onExit();
-		current().onExitToNext();
-		currentState += 1;
-		current().onEnter();
-		current().onEnterFromPrevious();
-		return true;		
+	public void redo(int branch) {
+		currentState.onExit();
+		currentState.onExitToNext();
+		currentState = currentState.next.get(branch);
+		currentState.onEnter();
+		currentState.onEnterFromPrevious();
 	}
 	
-	void saveState(Memento memento) {
-		// Drop the previous diverging timeline
-		if(hasNext()) {
-			savedStates = savedStates.subList(0, currentState + 1);
-		}
-		savedStates.add(memento);
-		currentState++;
-		current().onAddToHistory();
+	void saveState(Memento state) {
+		currentState.next.add(state);
+		state.previous = currentState;
+		currentState = state;
+		currentState.onAddToHistory();
 	}
-	
+
+	/**
+	 * Returns a printable representation of this History object.
+	 */
 	@Override
 	public String toString() {
-		StringBuilder str = new StringBuilder("{History:" + hashCode() + "} [");
-		for(Memento state : savedStates) {
-			str.append(state).append(state == current() ? "<>" : "").append(", ");
+		StringBuilder str = new StringBuilder("[");
+		// Previous state
+		Memento it = currentState;
+		while((it = it.previous) != null) {
+			str.insert(1, stateToString(it));
+		}
+		// Current cursor position
+		str.append("{").append(currentState).append("}, ");
+		// Next (most recent branches)	
+		it = currentState;	
+		while((it = it.next.size() > 0 ? it.next.get(it.next.size()-1) : null) != null) {
+			str.append(stateToString(it));
 		}
 		return str.replace(str.length()-2, str.length(), "").append(']').toString();
+	}
+	
+	private String stateToString(Memento state) {
+		return state + (state.next.size() > 1 ? "<" + state.next.size() : "") + ", ";
 	}
 }

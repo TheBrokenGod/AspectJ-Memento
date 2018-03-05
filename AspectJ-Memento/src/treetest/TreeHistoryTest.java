@@ -4,10 +4,10 @@ import ch.jacopoc.memento.Caretaker;
 import ch.jacopoc.memento.Memento;
 import ch.jacopoc.memento.Originator;
 
-public class TreeHistoryTest implements Caretaker, Runnable {
+public class TreeHistoryTest implements Caretaker {
 
-	static class WordMemento extends Memento {
-		
+	// Word inserted -> new state
+	static class WordMemento extends Memento {	
 		final String word;
 		
 		WordMemento(String word) {
@@ -20,25 +20,16 @@ public class TreeHistoryTest implements Caretaker, Runnable {
 		}
 	}
 	
-	static class OriginatorImpl implements Originator<WordMemento> {
-
-		public OriginatorImpl(String string) {
-		}
-
+	static class OriginatorImpl implements Originator<WordMemento> {	
 		@Override
 		public WordMemento createMemento(Object... args) {
-			return new WordMemento(args.length > 0 ? (String)args[0] : "");
+			return new WordMemento(args.length > 0 ? (String)args[0] : "This");
 		}
 	}
 	
-	final Originator<WordMemento> originator;
-	
 	public TreeHistoryTest() {
-		originator = new OriginatorImpl("This");
-	}
-
-	@Override
-	public void run() {
+		Originator<?> originator = new OriginatorImpl();
+		// Generate some branches
 		originator.createMemento("is");
 		originator.createMemento("the");
 		originator.createMemento("first");
@@ -53,6 +44,7 @@ public class TreeHistoryTest implements Caretaker, Runnable {
 		originator.createMemento("last");
 		originator.createMemento("branch.");
 		printHistory();
+		// Test correctness by exploring them
 		assertHistory("This is the second and last branch.");
 		undo(4);
 		redo(2, 0);
@@ -65,17 +57,7 @@ public class TreeHistoryTest implements Caretaker, Runnable {
 		redo(1, 1);
 		redo(1, 0);
 		assertHistory("This is the second and last");
-		System.out.println();
-	}
-	
-	void printHistory() {
-		System.err.println(history());
-	}
-	
-	void assertHistory(String assertion) {
-		String sentence = history().toString().split("\\[")[1].split("<>")[0].replaceAll("\\]", "").replaceAll(",", "");
-//		if(!sentence.equals(assertion)) throw new AssertionError();
-		System.err.println(sentence);
+		printHistory();
 	}
 	
 	void undo(int count) {
@@ -84,5 +66,20 @@ public class TreeHistoryTest implements Caretaker, Runnable {
 	
 	void redo(int count, int branch) {
 		for (int i = 0; i < count; i++) history().redo(branch);
+	}
+	
+	void printHistory() {
+		System.err.println(history());
+	}
+	
+	void assertHistory(String assertion) {
+		// Join history up to current position and test it
+		String sentence = history().toString().split("\\[")[1].split("<>")[0].split("}")[0];
+		sentence = sentence.replaceAll(",", "").replaceAll("\\<2", "").replaceAll("\\]", "").replaceAll("\\{", "");
+		sentence = sentence.trim();
+		if(!sentence.equals(assertion)) {
+			throw new AssertionError(sentence);
+		}
+		System.err.println(sentence);
 	}
 }
