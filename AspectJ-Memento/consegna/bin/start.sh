@@ -1,2 +1,2 @@
 #!/bin/bash
-./java -cp * main.Main
+java -cp "*" main.Main
