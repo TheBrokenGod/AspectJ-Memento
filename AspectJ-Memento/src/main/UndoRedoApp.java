@@ -26,8 +26,8 @@ abstract public class UndoRedoApp extends JFrame implements Caretaker, WindowLis
 		// Base GUI
 		setLayout(new BorderLayout());
 		toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		undo = new JButton("Undo (CTRL+Z)");
-		redo = new JButton("Redo (CTRL+Y)");
+		undo = new JButton("Undo");
+		redo = new JButton("Redo");
 		time = new JLabel();
 		toolbar.add(undo);
 		toolbar.add(redo);

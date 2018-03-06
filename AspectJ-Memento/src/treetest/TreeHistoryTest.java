@@ -69,7 +69,7 @@ public class TreeHistoryTest implements Caretaker {
 	}
 	
 	void printHistory() {
-		System.err.println(history());
+		System.err.println("History status: " + history());
 	}
 	
 	void assertHistory(String assertion) {
@@ -80,6 +80,6 @@ public class TreeHistoryTest implements Caretaker {
 		if(!sentence.equals(assertion)) {
 			throw new AssertionError(sentence);
 		}
-		System.err.println(sentence);
+		System.err.println("Assertion: " + sentence);
 	}
 }
